@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geoula Bulletin — Journal de bord</title>
+<style>
+  :root{
+    --bg:#0e1116;
+    --panel:#151a22;
+    --panel-2:#1b222c;
+    --line:#26303d;
+    --text:#e8edf4;
+    --muted:#93a1b3;
+    --accent:#5eead4;
+    --accent-2:#60a5fa;
+    --done:#34d399;
+    --doing:#fbbf24;
+    --todo:#5b6878;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 700px at 10% -10%, #17202b 0%, var(--bg) 55%) no-repeat, var(--bg);
+    color:var(--text);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding:32px 20px 72px;
+  }
+  .wrap{max-width:920px;margin:0 auto}
+
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;justify-content:space-between;margin-bottom:28px}
+  .brand h1{font-size:clamp(26px,4vw,36px);margin:0;letter-spacing:-.02em}
+  .brand h1 span{color:var(--accent)}
+  .brand p{margin:6px 0 0;color:var(--muted);font-size:15px}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--panel);border:1px solid var(--line);
+    padding:8px 14px;border-radius:999px;font-size:13px;color:var(--muted);
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(94,234,212,.14)}
+
+  section{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+  section > h2{
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 16px;font-weight:600;
+  }
+
+  /* --- Bandeau de position --- */
+  .now{background:linear-gradient(160deg,var(--panel-2),var(--panel));}
+  .now-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-bottom:16px}
+  .step-count{font-size:13px;color:var(--accent);font-weight:600;letter-spacing:.04em}
+  .now-title{font-size:clamp(19px,2.6vw,24px);font-weight:650;margin:0;letter-spacing:-.01em}
+  .now-sub{margin:8px 0 0;color:var(--muted);font-size:14.5px;max-width:62ch}
+  .bar{height:10px;border-radius:999px;background:#0b0f14;border:1px solid var(--line);overflow:hidden;margin:20px 0 10px}
+  .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .bar-legend{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+
+  /* --- Frise --- */
+  ol.timeline{list-style:none;margin:0;padding:0}
+  ol.timeline li{position:relative;padding:0 0 22px 38px;border-left:2px solid var(--line);margin-left:9px}
+  ol.timeline li:last-child{border-left-color:transparent;padding-bottom:0}
+  .marker{
+    position:absolute;left:-11px;top:1px;width:20px;height:20px;border-radius:50%;
+    display:grid;place-items:center;font-size:11px;font-weight:700;
+    background:var(--panel);border:2px solid var(--todo);color:var(--todo);
+  }
+  li.done .marker{background:rgba(52,211,153,.15);border-color:var(--done);color:var(--done)}
+  li.doing .marker{background:rgba(251,191,36,.15);border-color:var(--doing);color:var(--doing)}
+  .t-title{font-weight:600;font-size:15.5px}
+  li.todo .t-title{color:var(--muted);font-weight:500}
+  .t-when{font-size:12.5px;color:var(--muted);margin-left:8px;font-weight:400}
+  .t-desc{font-size:14px;color:var(--muted);margin-top:3px;max-width:65ch}
+  .tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:8px;vertical-align:1px}
+  li.done .tag{color:var(--done);border-color:rgba(52,211,153,.35)}
+  li.doing .tag{color:var(--doing);border-color:rgba(251,191,36,.35)}
+
+  /* --- Grilles --- */
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .card{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
+  .card .k{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+  .card .v{font-size:20px;font-weight:650;margin-top:6px;letter-spacing:-.01em}
+  .card .v small{font-size:13px;color:var(--muted);font-weight:400}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:#0b0f14;border:1px solid var(--line);padding:1.5px 6px;border-radius:6px;color:#cfe0f3}
+
+  table.files{width:100%;border-collapse:collapse;font-size:14px}
+  table.files th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:0 0 10px}
+  table.files td{padding:9px 0;border-top:1px solid var(--line);vertical-align:top}
+  table.files td:first-child{white-space:nowrap;padding-right:16px}
+  table.files td:last-child{color:var(--muted)}
+
+  ul.next{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  ul.next li{display:flex;gap:11px;align-items:flex-start;font-size:14.5px}
+  ul.next .n{
+    flex:0 0 auto;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+    background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.35);color:#93c5fd;font-size:12px;font-weight:700;margin-top:1px;
+  }
+  ul.next .n b{font-weight:600;color:var(--text)}
+  ul.next .n + div span{color:var(--muted)}
+
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:26px;line-height:1.8}
+  footer strong{color:var(--text);font-weight:600}
+  @media (prefers-reduced-motion:reduce){.bar > i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <h1>Geoula <span>Bulletin</span></h1>
+      <p>Journal de bord du projet — pour savoir à tout moment où vous en êtes.</p>
+    </div>
+    <div class="badge"><span class="dot"></span><span id="freshness">état à jour</span></div>
+  </header>
+
+  <!-- OÙ VOUS EN ÊTES -->
+  <section class="now">
+    <div class="now-top">
+      <span class="step-count" id="step-count">Étape 2 sur 6</span>
+      <h2 class="now-title" id="step-title" style="font-size:clamp(19px,2.6vw,24px);letter-spacing:-.01em">Le tableau de bord est en place</h2>
+    </div>
+    <p class="now-sub" id="step-sub">
+      Le dépôt contenait jusqu'ici un seul fichier vide&nbsp;: rien n'avait été enregistré.
+      Vous disposez maintenant d'un point de repère unique — cette page — qui dit toujours ce qui est fait, ce qui reste, et quoi faire ensuite.
+    </p>
+    <div class="bar"><i id="progress-bar"></i></div>
+    <div class="bar-legend"><span>Projet démarré</span><span id="progress-label">2 / 6 étapes</span></div>
+  </section>
+
+  <!-- FRISE DES ÉTAPES -->
+  <section>
+    <h2>Les étapes du projet</h2>
+    <ol class="timeline">
+      <li class="done">
+        <span class="marker">✓</span>
+        <div class="t-title">Dépôt créé <span class="t-when">28 août 2026</span><span class="tag">fait</span></div>
+        <div class="t-desc">Dépôt GitHub <code>geoula-bulletin</code> initialisé, branche <code>main</code> prête. Aucun contenu au-delà du README.</div>
+      </li>
+      <li class="doing">
+        <span class="marker">2</span>
+        <div class="t-title">Page de suivi d'avancement <span class="t-when">aujourd'hui</span><span class="tag">en cours</span></div>
+        <div class="t-desc">Cette page&nbsp;: la seule source de vérité sur l'état du projet. Elle se met à jour à chaque étape franchie.</div>
+      </li>
+      <li class="todo">
+        <span class="marker">3</span>
+        <div class="t-title">Définir le contenu du bulletin <span class="tag">à venir</span></div>
+        <div class="t-desc">Quelles rubriques, à quelle fréquence, avec quelles informations&nbsp;? C'est la décision qui débloque tout le reste.</div>
+      </li>
+      <li class="todo">
+        <span class="marker">4</span>
+        <div class="t-title">Maquette et charte graphique <span class="tag">à venir</span></div>
+        <div class="t-desc">Mise en page de la page d'accueil du bulletin, couleurs, typographie, lisibilité mobile.</div>
+      </li>
+      <li class="todo">
+        <span class="marker">5</span>
+        <div class="t-title">Construire le bulletin <span class="tag">à venir</span></div>
+        <div class="t-desc">Le site réel&nbsp;: rubriques, articles, dates de publication, archives consultables.</div>
+      </li>
+      <li class="todo">
+        <span class="marker">6</span>
+        <div class="t-title">Mettre en ligne <span class="tag">à venir</span></div>
+        <div class="t-desc">Publication publique et adresse web stable, pour que le bulletin soit consultable par tous.</div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ÉTAT TECHNIQUE -->
+  <section>
+    <h2>État réel du dépôt <span style="text-transform:none;letter-spacing:0;font-weight:400">— vérifié automatiquement</span></h2>
+    <div class="grid">
+      <div class="card"><div class="k">Branche de travail</div><div class="v" id="g-branch" style="font-size:15px">arena/5727047d-geoula-bulletin</div></div>
+      <div class="card"><div class="k">Dernier enregistrement</div><div class="v" id="g-commit" style="font-size:15px">—</div></div>
+      <div class="card"><div class="k">Fichiers suivis</div><div class="v" id="g-files">—</div></div>
+      <div class="card"><div class="k">Articles du bulletin</div><div class="v">0 <small>rubrique&nbsp;: 0</small></div></div>
+    </div>
+  </section>
+
+  <!-- CONTENU -->
+  <section>
+    <h2>Ce que contient le projet aujourd'hui</h2>
+    <table class="files">
+      <thead><tr><th>Fichier</th><th>Rôle</th></tr></thead>
+      <tbody>
+        <tr><td><code>index.html</code></td><td>Cette page de suivi d'avancement (et point de départ du futur site).</td></tr>
+        <tr><td><code>ETAT.md</code></td><td>Le même état, en version texte, lisible directement sur GitHub.</td></tr>
+        <tr><td><code>etat.json</code></td><td>Les informations techniques (branche, commit, date) lues par cette page.</td></tr>
+        <tr><td><code>scripts/etat.sh</code></td><td>Régénère <code>etat.json</code> pour que la page ne soit jamais périmée.</td></tr>
+        <tr><td><code>README.md</code></td><td>Présentation du dépôt.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- PROCHAINES ACTIONS -->
+  <section>
+    <h2>Les 3 prochaines actions</h2>
+    <ul class="next">
+      <li><span class="n">1</span><div><b>Répondre à trois questions</b><br><span>Qui lit ce bulletin, à quelle fréquence, et quelles rubriques doit-il contenir&nbsp;?</span></div></li>
+      <li><span class="n">2</span><div><b>Valider la maquette</b><br><span>Je propose une page d'accueil, vous corrigez ce qui ne va pas.</span></div></li>
+      <li><span class="n">3</span><div><b>Remplir le premier bulletin</b><br><span>Le site prend vie avec de vrais contenus, puis on le met en ligne.</span></div></li>
+    </ul>
+  </section>
+
+  <footer>
+    <strong>Cette page est votre point de repère.</strong> Si un doute revient, ouvrez-la&nbsp;: elle indique toujours l'étape en cours et l'action suivante.<br>
+    Dernière vérification&nbsp;: <span id="generated">—</span>
+  </footer>
+</div>
+
+<script>
+  // L'état technique est lu depuis etat.json (généré par scripts/etat.sh).
+  // Si le fichier est absent (ou page ouverte en local sans serveur), les valeurs par défaut restent affichées.
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+
+    var pct = Math.round((2 / 6) * 100);
+    $('progress-bar').style.width = pct + '%';
+    $('progress-label').textContent = '2 / 6 étapes';
+
+    function fmtDate(iso) {
+      if (!iso) return null;
+      var d = new Date(iso);
+      if (isNaN(d)) return null;
+      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    fetch('etat.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('absent'); return r.json(); })
+      .then(function (e) {
+        if (e.branch) $('g-branch').textContent = e.branch;
+        if (e.short_sha) {
+          $('g-commit').textContent = e.short_sha + ' · ' + (e.last_commit_message || '');
+          $('g-commit').title = e.last_commit_message || '';
+        }
+        if (typeof e.tracked_files === 'number') {
+          $('g-files').innerHTML = e.tracked_files + ' <small>fichier' + (e.tracked_files > 1 ? 's' : '') + '</small>';
+        }
+        var when = fmtDate(e.generated_at) || fmtDate(e.last_commit_date);
+        if (when) $('generated').textContent = when + (e.commit_date ? '' : '');
+        $('freshness').textContent = 'état vérifié';
+      })
+      .catch(function () {
+        $('freshness').textContent = 'état : valeurs par défaut';
+      });
+  })();
+</script>
+</body>
+</html>
