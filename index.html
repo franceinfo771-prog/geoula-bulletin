@@ -119,15 +119,15 @@
   <!-- OÙ VOUS EN ÊTES -->
   <section class="now">
     <div class="now-top">
-      <span class="step-count" id="step-count">Étape 2 sur 6</span>
-      <h2 class="now-title" id="step-title" style="font-size:clamp(19px,2.6vw,24px);letter-spacing:-.01em">Le tableau de bord est en place</h2>
+      <span class="step-count" id="step-count">Étape 3 sur 6</span>
+      <h2 class="now-title" id="step-title" style="font-size:clamp(19px,2.6vw,24px);letter-spacing:-.01em">Définir le contenu du bulletin</h2>
     </div>
     <p class="now-sub" id="step-sub">
-      Le dépôt contenait jusqu'ici un seul fichier vide&nbsp;: rien n'avait été enregistré.
-      Vous disposez maintenant d'un point de repère unique — cette page — qui dit toujours ce qui est fait, ce qui reste, et quoi faire ensuite.
+      Le site est en ligne et l'Atelier est disponible pour vous guider. Il reste la décision de fond&nbsp;:
+      qui lit ce bulletin, à quelle fréquence, et quelles rubriques&nbsp;? Répondez-y et tout le reste s'enchaîne.
     </p>
     <div class="bar"><i id="progress-bar"></i></div>
-    <div class="bar-legend"><span>Projet démarré</span><span id="progress-label">2 / 6 étapes</span></div>
+    <div class="bar-legend"><span>Projet démarré</span><span id="progress-label">3 / 6 étapes</span></div>
   </section>
 
   <!-- FRISE DES ÉTAPES -->
@@ -139,15 +139,15 @@
         <div class="t-title">Dépôt créé <span class="t-when">28 août 2026</span><span class="tag">fait</span></div>
         <div class="t-desc">Dépôt GitHub <code>geoula-bulletin</code> initialisé, branche <code>main</code> prête. Aucun contenu au-delà du README.</div>
       </li>
-      <li class="doing">
-        <span class="marker">2</span>
-        <div class="t-title">Page de suivi d'avancement <span class="t-when">aujourd'hui</span><span class="tag">en cours</span></div>
-        <div class="t-desc">Cette page&nbsp;: la seule source de vérité sur l'état du projet. Elle se met à jour à chaque étape franchie.</div>
+      <li class="done">
+        <span class="marker">✓</span>
+        <div class="t-title">Page de suivi d'avancement <span class="t-when">aujourd'hui</span><span class="tag">fait</span></div>
+        <div class="t-desc">Cette page&nbsp;: la seule source de vérité sur l'état du projet. Plus l'<a href="atelier.html" style="color:#5eead4">Atelier</a>, l'assistant intégré qui explique quoi faire.</div>
       </li>
-      <li class="todo">
+      <li class="doing">
         <span class="marker">3</span>
-        <div class="t-title">Définir le contenu du bulletin <span class="tag">à venir</span></div>
-        <div class="t-desc">Quelles rubriques, à quelle fréquence, avec quelles informations&nbsp;? C'est la décision qui débloque tout le reste.</div>
+        <div class="t-title">Définir le contenu du bulletin <span class="tag">en cours</span></div>
+        <div class="t-desc">Quelles rubriques, à quelle fréquence, avec quelles informations&nbsp;? C'est la décision qui débloque tout le reste — consignez-la dans l'onglet « Mes décisions » de l'Atelier.</div>
       </li>
       <li class="todo">
         <span class="marker">4</span>
@@ -159,10 +159,10 @@
         <div class="t-title">Construire le bulletin <span class="tag">à venir</span></div>
         <div class="t-desc">Le site réel&nbsp;: rubriques, articles, dates de publication, archives consultables.</div>
       </li>
-      <li class="todo">
+      <li class="doing">
         <span class="marker">6</span>
-        <div class="t-title">Mettre en ligne <span class="tag">à venir</span></div>
-        <div class="t-desc">Publication publique et adresse web stable, pour que le bulletin soit consultable par tous.</div>
+        <div class="t-title">Mettre en ligne <span class="tag">partiel</span></div>
+        <div class="t-desc">GitHub Pages est actif. Reste à confirmer que la publication se fait bien depuis <code>main</code> (Settings → Pages).</div>
       </li>
     </ol>
   </section>
@@ -185,6 +185,7 @@
       <thead><tr><th>Fichier</th><th>Rôle</th></tr></thead>
       <tbody>
         <tr><td><code>index.html</code></td><td>Cette page de suivi d'avancement (et point de départ du futur site).</td></tr>
+        <tr><td><code>atelier.html</code></td><td>L'Atelier&nbsp;: assistant intégré pour construire le site (sans clé API).</td></tr>
         <tr><td><code>ETAT.md</code></td><td>Le même état, en version texte, lisible directement sur GitHub.</td></tr>
         <tr><td><code>etat.json</code></td><td>Les informations techniques (branche, commit, date) lues par cette page.</td></tr>
         <tr><td><code>scripts/etat.sh</code></td><td>Régénère <code>etat.json</code> pour que la page ne soit jamais périmée.</td></tr>
@@ -197,14 +198,15 @@
   <section>
     <h2>Les 3 prochaines actions</h2>
     <ul class="next">
-      <li><span class="n">1</span><div><b>Répondre à trois questions</b><br><span>Qui lit ce bulletin, à quelle fréquence, et quelles rubriques doit-il contenir&nbsp;?</span></div></li>
-      <li><span class="n">2</span><div><b>Valider la maquette</b><br><span>Je propose une page d'accueil, vous corrigez ce qui ne va pas.</span></div></li>
+      <li><span class="n">1</span><div><b>Répondre à trois questions</b><br><span>Qui lit ce bulletin, à quelle fréquence, et quelles rubriques doit-il contenir&nbsp;? → onglet « Mes décisions » de l'Atelier.</span></div></li>
+      <li><span class="n">2</span><div><b>Confirmer la publication</b><br><span>Settings → Pages : la source doit être <code>main</code> et <code>/ (root)</code>.</span></div></li>
       <li><span class="n">3</span><div><b>Remplir le premier bulletin</b><br><span>Le site prend vie avec de vrais contenus, puis on le met en ligne.</span></div></li>
     </ul>
   </section>
 
   <footer>
     <strong>Cette page est votre point de repère.</strong> Si un doute revient, ouvrez-la&nbsp;: elle indique toujours l'étape en cours et l'action suivante.<br>
+    Besoin d'aide pour construire&nbsp;? <a href="atelier.html" style="color:#5eead4">Ouvrir l'Atelier</a> — l'assistant intégré qui explique quoi faire, clic par clic.<br>
     Dernière vérification&nbsp;: <span id="generated">—</span>
   </footer>
 </div>
@@ -215,9 +217,9 @@
   (function () {
     var $ = function (id) { return document.getElementById(id); };
 
-    var pct = Math.round((2 / 6) * 100);
+    var pct = Math.round((3 / 6) * 100);
     $('progress-bar').style.width = pct + '%';
-    $('progress-label').textContent = '2 / 6 étapes';
+    $('progress-label').textContent = '3 / 6 étapes';
 
     function fmtDate(iso) {
       if (!iso) return null;

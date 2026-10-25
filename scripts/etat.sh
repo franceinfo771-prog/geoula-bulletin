@@ -22,9 +22,9 @@ branch, short_sha, full_sha, msg, cdate, files, dirty, gen = sys.argv[1:9]
 
 # Étape courante du projet : c'est la seule valeur à modifier à la main.
 PROJECT = {
-    "current_step": 2,
+    "current_step": 3,
     "total_steps": 6,
-    "current_label": "Le tableau de bord est en place",
+    "current_label": "Définir le contenu du bulletin",
 }
 
 data = {

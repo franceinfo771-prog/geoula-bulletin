@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L'Atelier — construire Geoula Bulletin</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#151a22; --panel-2:#1b222c; --line:#26303d;
+    --text:#e8edf4; --muted:#93a1b3; --accent:#5eead4; --accent-2:#60a5fa;
+    --done:#34d399; --doing:#fbbf24; --warn:#fca5a5; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:radial-gradient(1100px 600px at 8% -10%, #17202b 0%, var(--bg) 55%) no-repeat, var(--bg);
+    color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased;padding:28px 18px 80px;
+  }
+  .wrap{max-width:960px;margin:0 auto}
+  a{color:var(--accent-2)}
+
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+  h1{font-size:clamp(24px,4vw,32px);margin:0;letter-spacing:-.02em}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);font-size:14.5px;margin:6px 0 0}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
+    padding:7px 13px;border-radius:999px;font-size:12.5px;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--done);box-shadow:0 0 0 4px rgba(52,211,153,.14)}
+
+  /* Onglets */
+  nav.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+  nav.tabs button{
+    appearance:none;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);
+    font:inherit;font-size:14px;padding:11px 13px;cursor:pointer;white-space:nowrap;border-radius:8px 8px 0 0;
+  }
+  nav.tabs button:hover{color:var(--text);background:rgba(255,255,255,.03)}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+  .panel{display:none;animation:fade .25s ease}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  section.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  section.card > h2{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
+
+  .grid{display:grid;gap:11px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  .kpi{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:13px 14px}
+  .kpi .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .kpi .v{font-size:17px;font-weight:650;margin-top:5px;word-break:break-word}
+  .kpi .v small{font-size:12.5px;color:var(--muted);font-weight:400}
+
+  /* Chat */
+  #thread{display:flex;flex-direction:column;gap:12px;max-height:min(52vh,430px);overflow-y:auto;padding:4px 2px 10px;scroll-behavior:smooth}
+  .msg{max-width:88%;border-radius:13px;padding:11px 14px;font-size:14.5px;border:1px solid var(--line)}
+  .msg.bot{background:var(--panel-2);border-bottom-left-radius:4px;align-self:flex-start}
+  .msg.me{background:rgba(96,165,250,.13);border-color:rgba(96,165,250,.3);border-bottom-right-radius:4px;align-self:flex-end}
+  .msg b{color:var(--accent)}
+  .msg code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#0b0f14;
+    border:1px solid var(--line);padding:1px 5px;border-radius:5px;color:#cfe0f3}
+  .msg ol,.msg ul{margin:8px 0 0;padding-left:20px}
+  .msg li{margin-bottom:5px}
+  .msg .path{display:block;margin-top:8px;font-size:12.5px;color:var(--accent)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 12px}
+  .chips button{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);font:inherit;
+    font-size:12.5px;padding:6px 11px;border-radius:999px;cursor:pointer}
+  .chips button:hover{color:var(--text);border-color:var(--accent)}
+
+  .composer{display:flex;gap:8px}
+  input[type=text],input[type=number],textarea,select{
+    width:100%;background:#0b0f14;border:1px solid var(--line);color:var(--text);font:inherit;
+    font-size:14px;padding:10px 12px;border-radius:10px;outline:none;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,234,212,.1)}
+  textarea{resize:vertical;min-height:90px;line-height:1.5}
+  button.btn{background:linear-gradient(180deg,#2dd4bf,#14b8a6);color:#04211d;border:0;font:inherit;font-weight:650;
+    font-size:14px;padding:10px 17px;border-radius:10px;cursor:pointer;white-space:nowrap}
+  button.btn:hover{filter:brightness(1.07)}
+  button.btn.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line);font-weight:500}
+  button.btn.ghost:hover{border-color:var(--accent);filter:none}
+  button.btn:disabled{opacity:.5;cursor:not-allowed}
+
+  /* Checklist */
+  ul.check{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+  ul.check li{display:flex;gap:11px;align-items:flex-start;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:11px 13px;font-size:14.5px}
+  ul.check input[type=checkbox]{appearance:none;width:19px;height:19px;flex:0 0 auto;border:2px solid #3b4859;
+    border-radius:6px;cursor:pointer;margin-top:2px;position:relative}
+  ul.check input[type=checkbox]:checked{background:var(--done);border-color:var(--done)}
+  ul.check input[type=checkbox]:checked::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;
+    color:#06251b;font-size:12px;font-weight:800}
+  ul.check li.done label{color:var(--muted);text-decoration:line-through}
+  ul.check label{cursor:pointer;flex:1}
+  ul.check label small{display:block;color:var(--muted);font-size:12.5px;text-decoration:none;margin-top:2px}
+
+  .bar{height:9px;border-radius:999px;background:#0b0f14;border:1px solid var(--line);overflow:hidden;margin:14px 0 8px}
+  .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .5s}
+
+  .row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:12px}
+  label.f{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;letter-spacing:.03em}
+
+  .out{position:relative}
+  .out textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;min-height:190px}
+  .out .copy{position:absolute;top:8px;right:8px;font-size:12px;padding:5px 10px;border-radius:8px;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);cursor:pointer;font:inherit}
+  .out .copy:hover{border-color:var(--accent)}
+
+  .note{font-size:13px;color:var(--muted);margin:10px 0 0}
+  .warnbox{background:rgba(252,165,165,.07);border:1px solid rgba(252,165,165,.28);border-radius:10px;padding:12px 14px;font-size:13.5px;color:#fecaca}
+  .okbox{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3);border-radius:10px;padding:12px 14px;font-size:13.5px;color:#a7f3d0}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:24px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>L'<span>Atelier</span></h1>
+      <p class="sub">L'assistant qui t'aide à construire ce site. Aucune clé, aucun compte, rien ne sort de ton navigateur.</p>
+    </div>
+    <div class="pill"><span class="dot"></span><span id="state-pill">chargement…</span></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="aide">💬 Assistant</button>
+    <button role="tab" aria-selected="false" data-tab="etat">📍 Où j'en suis</button>
+    <button role="tab" aria-selected="false" data-tab="ecrire">✍️ Générer un article</button>
+    <button role="tab" aria-selected="false" data-tab="decisions">🧭 Mes décisions</button>
+  </nav>
+
+  <!-- ============ ASSISTANT ============ -->
+  <div class="panel on" id="p-aide" role="tabpanel">
+    <section class="card">
+      <h2>Pose ta question</h2>
+      <div id="thread" aria-live="polite"></div>
+      <div class="chips" id="chips"></div>
+      <div class="composer">
+        <input type="text" id="ask" placeholder="Ex. : comment publier un article ? pourquoi un 404 ?" autocomplete="off">
+        <button class="btn" id="send">Demander</button>
+      </div>
+      <p class="note">Cet assistant fonctionne hors ligne : il connaît ce projet et répond à partir d'une base de réponses écrites. Il ne génère pas de texte libre — pour ça, utilise l'onglet « Générer un article ».</p>
+    </section>
+  </div>
+
+  <!-- ============ ÉTAT ============ -->
+  <div class="panel" id="p-etat" role="tabpanel">
+    <section class="card">
+      <h2>Étape du projet</h2>
+      <div class="grid">
+        <div class="kpi"><div class="k">Étape</div><div class="v" id="k-step">—</div></div>
+        <div class="kpi"><div class="k">Branche</div><div class="v" id="k-branch" style="font-size:14px">—</div></div>
+        <div class="kpi"><div class="k">Dernier commit</div><div class="v" id="k-commit" style="font-size:14px">—</div></div>
+        <div class="kpi"><div class="k">Fichiers du site</div><div class="v" id="k-files">—</div></div>
+      </div>
+      <p class="note" id="k-updated"></p>
+    </section>
+
+    <section class="card">
+      <h2>Ce qu'il reste à faire</h2>
+      <div class="bar"><i id="ck-bar"></i></div>
+      <p class="note" id="ck-count" style="margin-bottom:14px"></p>
+      <ul class="check" id="checklist"></ul>
+      <p class="note">Ces cases sont enregistrées dans ton navigateur (rien n'est envoyé).</p>
+    </section>
+  </div>
+
+  <!-- ============ GÉNÉRER UN ARTICLE ============ -->
+  <div class="panel" id="p-ecrire" role="tabpanel">
+    <section class="card">
+      <h2>Préparer un article</h2>
+      <div class="row">
+        <div><label class="f" for="f-rub">Rubrique</label>
+          <input type="text" id="f-rub" placeholder="Ex. Vie du quartier" value="Vie du quartier"></div>
+        <div><label class="f" for="f-titre">Titre de travail</label>
+          <input type="text" id="f-titre" placeholder="Ex. La fête des voisins revient"></div>
+        <div><label class="f" for="f-len">Longueur</label>
+          <select id="f-len">
+            <option value="courte (120 mots environ)">Brève — 120 mots</option>
+            <option value="moyenne (300 mots environ)" selected>Article — 300 mots</option>
+            <option value="longue (600 mots environ)">Dossier — 600 mots</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label class="f" for="f-ton">Ton</label>
+          <select id="f-ton">
+            <option>simple et direct</option>
+            <option>chaleureux et proche des gens</option>
+            <option>neutre et factuel</option>
+            <option>institutionnel</option>
+          </select></div>
+        <div><label class="f" for="f-pub">Public</label>
+          <input type="text" id="f-pub" placeholder="Ex. habitants du village" value="habitants du village"></div>
+      </div>
+      <label class="f" for="f-faits">Les faits à ne pas inventer (dates, noms, chiffres)</label>
+      <textarea id="f-faits" placeholder="Ex. Samedi 14 mars, salle des fêtes, 19 h, entrée libre. Organisé par l'association Les Glycines."></textarea>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn" id="gen">Générer le prompt</button>
+        <button class="btn ghost" id="clear-f">Effacer</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>À copier dans une IA</h2>
+      <div class="out">
+        <textarea id="prompt-out" readonly placeholder="Le prompt apparaîtra ici…"></textarea>
+        <button class="copy" id="copy">Copier</button>
+      </div>
+      <p class="note">Colle ce texte dans l'IA de ton choix (ou dans la conversation Arena), puis rapporte le texte obtenu. ⚠️ Ne publie jamais un article dont tu n'as pas vérifié les faits.</p>
+    </section>
+  </div>
+
+  <!-- ============ DÉCISIONS ============ -->
+  <div class="panel" id="p-decisions" role="tabpanel">
+    <section class="card">
+      <h2>Les décisions qui débloquent le projet</h2>
+      <p class="note" style="margin-top:0;margin-bottom:14px">Tant que ces trois réponses ne sont pas écrites noir sur blanc, le site ne peut pas vraiment avancer.</p>
+      <div class="row" style="grid-template-columns:1fr">
+        <div><label class="f" for="d-lecteurs">1. Qui lit le bulletin ?</label>
+          <input type="text" id="d-lecteurs" placeholder="Ex. les habitants du quartier, environ 300 foyers"></div>
+        <div><label class="f" for="d-freq">2. À quelle fréquence paraît-il ?</label>
+          <input type="text" id="d-freq" placeholder="Ex. une fois par mois, le 1er"></div>
+        <div><label class="f" for="d-rub">3. Quelles rubriques ?</label>
+          <input type="text" id="d-rub" placeholder="Ex. Vie du quartier, Agenda, Travaux, Portrait"></div>
+      </div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn" id="save-d">Enregistrer</button>
+        <button class="btn ghost" id="export-d">Copier le résumé</button>
+      </div>
+      <p class="note" id="d-status"></p>
+      <div id="d-summary" style="margin-top:12px"></div>
+    </section>
+  </div>
+
+  <footer>
+    <a href="index.html">← Tableau de bord</a> · L'Atelier est une page de travail : elle n'est pas listée sur le site public.
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem('geoula:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem('geoula:' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  /* ---------- Onglets ---------- */
+  var tabs = document.querySelectorAll('nav.tabs button');
+  Array.prototype.forEach.call(tabs, function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(tabs, function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      Array.prototype.forEach.call(document.querySelectorAll('.panel'), function (p) { p.classList.remove('on'); });
+      $('p-' + b.dataset.tab).classList.add('on');
+      if (b.dataset.tab === 'etat') paintChecklist();
+    });
+  });
+
+  /* ---------- État du projet ---------- */
+  var ETAPES = [
+    'Dépôt créé',
+    'Tableau de bord',
+    'Définir le contenu du bulletin',
+    'Maquette et charte graphique',
+    'Construire le bulletin',
+    'Mettre en ligne'
+  ];
+
+  function paintEtat(e) {
+    var cur = (e && e.step && e.step.current_step) || 2;
+    var tot = (e && e.step && e.step.total_steps) || 6;
+    $('k-step').innerHTML = cur + ' / ' + tot + ' <small>' + (ETAPES[cur - 1] || '') + '</small>';
+    $('k-branch').textContent = (e && e.branch) || 'inconnue';
+    $('k-commit').textContent = e && e.short_sha ? e.short_sha + ' — ' + (e.last_commit_message || '') : '—';
+    $('k-files').innerHTML = e && typeof e.tracked_files === 'number'
+      ? e.tracked_files + ' <small>suivi(s)</small>' : '—';
+    if (e && e.generated_at) {
+      var d = new Date(e.generated_at);
+      $('k-updated').textContent = 'Fiche technique datée du ' +
+        d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) +
+        '. Si elle te paraît ancienne, relance : ./scripts/etat.sh';
+    }
+    $('state-pill').textContent = 'étape ' + cur + ' / ' + tot;
+  }
+
+  fetch('etat.json', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(paintEtat)
+    .catch(function () { paintEtat(null); $('state-pill').textContent = 'état local'; });
+
+  /* ---------- Checklist ---------- */
+  var TODO = [
+    { id: 't1', t: 'Activer GitHub Pages', d: 'Settings → Pages → Source : Deploy from a branch → main → / (root) → Save.' },
+    { id: 't2', t: 'Répondre aux 3 questions de contenu', d: 'Onglet « Mes décisions » : lecteurs, fréquence, rubriques.' },
+    { id: 't3', t: 'Choisir les rubriques définitives', d: '3 à 5 rubriques suffisent pour démarrer.' },
+    { id: 't4', t: 'Valider la maquette de la page d\'accueil', d: 'Couleurs, ordre des rubriques, lisibilité sur téléphone.' },
+    { id: 't5', t: 'Écrire le premier article', d: 'Utilise l\'onglet « Générer un article ». Vérifie les faits avant publication.' },
+    { id: 't6', t: 'Publier la version finale', d: 'Mettre à jour la page d\'accueil et republier.' }
+  ];
+
+  function paintChecklist() {
+    var done = store.get('checklist', {});
+    var ul = $('checklist');
+    ul.innerHTML = '';
+    TODO.forEach(function (item) {
+      var li = document.createElement('li');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.id = item.id; cb.checked = !!done[item.id];
+      cb.addEventListener('change', function () {
+        done[item.id] = cb.checked; store.set('checklist', done);
+        li.classList.toggle('done', cb.checked); paintBar();
+      });
+      var lab = document.createElement('label');
+      lab.htmlFor = item.id;
+      lab.innerHTML = '';
+      lab.appendChild(document.createTextNode(item.t));
+      var sm = document.createElement('small'); sm.textContent = item.d; lab.appendChild(sm);
+      li.appendChild(cb); li.appendChild(lab);
+      li.classList.toggle('done', cb.checked);
+      ul.appendChild(li);
+    });
+    paintBar();
+  }
+  function paintBar() {
+    var done = store.get('checklist', {});
+    var n = TODO.filter(function (i) { return done[i.id]; }).length;
+    $('ck-bar').style.width = Math.round(n / TODO.length * 100) + '%';
+    $('ck-count').textContent = n + ' action(s) sur ' + TODO.length + ' faite(s)' + (n === TODO.length ? ' — tout est fait 🎉' : '');
+  }
+
+  /* ---------- Décisions ---------- */
+  var DK = ['lecteurs', 'freq', 'rub'];
+  function loadDecisions() {
+    var d = store.get('decisions', {});
+    $('d-lecteurs').value = d.lecteurs || '';
+    $('d-freq').value = d.freq || '';
+    $('d-rub').value = d.rub || '';
+    paintSummary(d);
+  }
+  function paintSummary(d) {
+    var filled = DK.filter(function (k) { return d[k] && d[k].trim(); }).length;
+    if (!filled) {
+      $('d-status').textContent = 'Aucune décision enregistrée pour l\'instant.';
+      $('d-summary').innerHTML = '';
+      return;
+    }
+    $('d-status').textContent = filled + ' réponse(s) sur 3 enregistrée(s).';
+    $('d-summary').innerHTML =
+      '<div class="okbox"><b>Résumé à coller dans la conversation :</b><br>' +
+      'Lecteurs : ' + esc(d.lecteurs || '(à définir)') + '<br>' +
+      'Fréquence : ' + esc(d.freq || '(à définir)') + '<br>' +
+      'Rubriques : ' + esc(d.rub || '(à définir)') + '</div>';
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+  $('save-d').addEventListener('click', function () {
+    var d = { lecteurs: $('d-lecteurs').value, freq: $('d-freq').value, rub: $('d-rub').value };
+    store.set('decisions', d); paintSummary(d);
+    $('d-status').textContent = '✓ Enregistré dans ce navigateur.';
+  });
+  $('export-d').addEventListener('click', function () {
+    var d = store.get('decisions', {});
+    var txt = 'Projet Geoula Bulletin — décisions\n' +
+      'Lecteurs : ' + (d.lecteurs || '(à définir)') + '\n' +
+      'Fréquence : ' + (d.freq || '(à définir)') + '\n' +
+      'Rubriques : ' + (d.rub || '(à définir)');
+    copyText(txt, $('export-d'));
+  });
+
+  /* ---------- Générateur de prompt ---------- */
+  $('gen').addEventListener('click', function () {
+    var rub = $('f-rub').value.trim() || '(non précisée)';
+    var titre = $('f-titre').value.trim();
+    var len = $('f-len').value;
+    var ton = $('f-ton').value;
+    var pub = $('f-pub').value.trim() || 'lecteurs du bulletin';
+    var faits = $('f-faits').value.trim();
+
+    var p = 'Tu es rédacteur d\'un bulletin local. Écris un article en français.\n\n' +
+      'Rubrique : ' + rub + '\n' +
+      (titre ? 'Titre de travail : ' + titre + '\n' : '') +
+      'Longueur : ' + len + '\n' +
+      'Ton : ' + ton + '\n' +
+      'Public : ' + pub + '\n\n' +
+      'Faits à respecter strictement (n\'en invente aucun autre) :\n' +
+      (faits || '(aucun fait fourni — pose-moi des questions avant de rédiger)') + '\n\n' +
+      'Contraintes :\n' +
+      '- Un titre court et clair, puis un chapô de 2 lignes maximum.\n' +
+      '- Des paragraphes courts (3 phrases max), une phrase par idée.\n' +
+      '- Aucun nom, chiffre, date ou citation inventé.\n' +
+      '- Termine par une phrase qui indique au lecteur ce qu\'il doit retenir ou faire.\n' +
+      '- Pas de jargon administratif.\n\n' +
+      'Rends uniquement l\'article, sans commentaire.';
+
+    $('prompt-out').value = p;
+    $('prompt-out').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('copy').textContent = 'Copier';
+  });
+  $('clear-f').addEventListener('click', function () {
+    ['f-titre', 'f-faits'].forEach(function (i) { $(i).value = ''; });
+    $('prompt-out').value = '';
+  });
+  $('copy').addEventListener('click', function () {
+    if (!$('prompt-out').value) return;
+    copyText($('prompt-out').value, $('copy'));
+  });
+
+  function copyText(txt, btn) {
+    var old = btn.textContent;
+    var done = function () { btn.textContent = '✓ Copié'; setTimeout(function () { btn.textContent = old; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, function () { fallbackCopy(txt, done); });
+    } else { fallbackCopy(txt, done); }
+  }
+  function fallbackCopy(txt, done) {
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  /* ---------- Assistant : base de connaissances ---------- */
+  var KB = [
+    {
+      k: ['publier', 'publication', 'pages', '404', 'en ligne', 'activer', 'héberger', 'heberger', 'github pages', 'site invisible', 'marche pas'],
+      a: '<b>Publier le site</b><ol>' +
+        '<li>Ouvrir <code>Settings → Pages</code> du dépôt.</li>' +
+        '<li>Source : <code>Deploy from a branch</code> (jamais « GitHub Actions » ici).</li>' +
+        '<li>Branche <code>main</code>, dossier <code>/ (root)</code>.</li>' +
+        '<li>Cliquer <code>Save</code> — c\'est ce clic qui déclenche tout.</li>' +
+        '<li>Attendre 1 à 2 min, puis recharger avec Ctrl+Shift+R.</li></ol>' +
+        'Le message <b>« There isn\'t a GitHub Pages site here »</b> signifie qu\'aucun site n\'est activé — pas qu\'il est cassé.' +
+        '<span class="path">URL : https://franceinfo771-prog.github.io/geoula-bulletin/</span>'
+    },
+    {
+      k: ['article', 'écrire', 'ecrire', 'rédiger', 'rediger', 'rédaction', 'redaction', 'texte', 'contenu'],
+      a: '<b>Écrire un article</b><ol>' +
+        '<li>Onglet <b>Générer un article</b> : rubrique, titre, longueur, public.</li>' +
+        '<li>Saisir les <b>faits</b> (dates, noms, lieux) — c\'est la partie qui évite les erreurs.</li>' +
+        '<li>Cliquer <b>Générer le prompt</b>, puis <b>Copier</b>.</li>' +
+        '<li>Coller le prompt dans l\'IA de ton choix, récupérer le texte.</li>' +
+        '<li><b>Relire et vérifier chaque fait</b> avant de publier. C\'est non négociable.</li></ol>'
+    },
+    {
+      k: ['rubrique', 'rubriques', 'sections', 'organiser', 'structure', 'sommaire'],
+      a: '<b>Choisir les rubriques</b> — 3 à 5 suffisent pour démarrer, au-delà on ne remplit plus.<br>' +
+        'Un jeu qui fonctionne pour un bulletin local :<ul>' +
+        '<li><b>À la une</b> — l\'information principale du numéro</li>' +
+        '<li><b>Vie du quartier</b> — événements, associations, initiatives</li>' +
+        '<li><b>Agenda</b> — les dates à venir, en liste courte</li>' +
+        '<li><b>Infos pratiques</b> — travaux, horaires, contacts utiles</li></ul>' +
+        'Écris tes choix dans l\'onglet <b>Mes décisions</b>, sinon ils seront oubliés.'
+    },
+    {
+      k: ['clé', 'cle', 'api', 'chatgpt', 'ia', 'intelligence', 'assistant', 'gpt', 'coût', 'cout', 'gratuit', 'payant'],
+      a: '<b>L\'IA dans le site</b><ul>' +
+        '<li>Cet Atelier n\'utilise <b>aucune clé API</b> : il répond hors ligne, sans coût.</li>' +
+        '<li>Une vraie IA conversationnelle <b>dans</b> le site demanderait un petit service intermédiaire (Cloudflare Worker), car un site GitHub Pages est statique et ne peut pas cacher une clé.</li>' +
+        '<li>Une clé écrite dans le HTML est volée en quelques heures — ne jamais faire ça.</li></ul>' +
+        'Besoin réel d\'un chat pour les visiteurs ? Il faut un mot de passe + un Worker + un peu de crédit API.'
+    },
+    {
+      k: ['changer', 'étape', 'etape', 'avancer', 'progression', 'mettre à jour', 'etat'],
+      a: '<b>Mettre à jour l\'étape affichée</b><ol>' +
+        '<li>Ouvrir <code>scripts/etat.sh</code>, bloc <code>PROJECT</code>, ligne <code>current_step</code>.</li>' +
+        '<li>Lancer <code>./scripts/etat.sh</code> pour régénérer <code>etat.json</code>.</li>' +
+        '<li>Mettre à jour la frise de <code>index.html</code> et le tableau de <code>ETAT.md</code>.</li></ol>' +
+        'Astuce : demande-le en conversation, c\'est fait en une minute.'
+    },
+    {
+      k: ['sauvegarde', 'sauvegarder', 'git', 'commit', 'perdu', 'branche', 'version'],
+      a: '<b>Sauvegarder son travail</b><ul>' +
+        '<li>Chaque modification est enregistrée par un <b>commit</b> Git : c\'est l\'historique, rien ne se perd.</li>' +
+        '<li>Les cases cochées et les décisions de l\'Atelier sont stockées <b>dans ton navigateur</b>, pas dans le dépôt : elles disparaissent si tu vides les données du site.</li>' +
+        '<li>Pour une sauvegarde durable, utilise le bouton <b>Copier le résumé</b> et colle-le dans la conversation.</li></ul>'
+    },
+    {
+      k: ['mobile', 'téléphone', 'telephone', 'responsive', 'affichage'],
+      a: '<b>Sur téléphone</b> : les deux pages sont conçues pour, avec une seule colonne.<br>' +
+        'Si tu vois du texte minuscule, c\'est que la balise <code>viewport</code> manque — elle est présente ici, donc le rendu doit être correct. Teste en réduisant la largeur de la fenêtre sur ordinateur.'
+    },
+    {
+      k: ['qui', 'à qui', 'lecteur', 'public', 'cible', 'fréquence', 'frequence'],
+      a: '<b>Les 3 questions qui débloquent tout</b><ol>' +
+        '<li>Qui lit ? (habitants, adhérents, parents, clients…)</li>' +
+        '<li>À quelle fréquence ? (mensuel, trimestriel, à chaque événement)</li>' +
+        '<li>Quelles rubriques ? (3 à 5, pas plus)</li></ol>' +
+        'Sans ces réponses, tout le reste est de la décoration. Note-les dans l\'onglet <b>Mes décisions</b>.'
+    },
+    {
+      k: ['perdu', 'comprends pas', 'aide moi', 'commencer', 'débuter', 'debuter', 'par où', 'par ou', 'bloqué', 'bloque'],
+      a: '<b>Tu es bloqué ? Respire, il n\'y a que 3 choses à faire.</b><ol>' +
+        '<li><b>Publier</b> : Settings → Pages → Deploy from a branch → main → / (root) → Save.</li>' +
+        '<li><b>Décider</b> : lecteurs, fréquence, rubriques (onglet Mes décisions).</li>' +
+        '<li><b>Écrire</b> : un premier article avec l\'onglet de génération.</li></ol>' +
+        'Tout le reste est secondaire. Le site actuel est le tableau de bord, pas encore le bulletin.'
+    },
+    {
+      k: ['domaine', 'adresse', 'url', 'nom de domaine', 'personnalisé', 'personnalise'],
+      a: '<b>Adresse du site</b><br>Par défaut : <code>https://franceinfo771-prog.github.io/geoula-bulletin/</code><br>' +
+        'Un nom de domaine personnalisé (ex. <code>geoula.fr</code>) se configure dans Settings → Pages → Custom domain, mais il faut d\'abord <b>acheter</b> ce domaine chez un registrar. À faire seulement quand le bulletin existe vraiment.'
+    }
+  ];
+
+  var SUGGEST = [
+    'Comment publier le site ?',
+    'Pourquoi un 404 ?',
+    'Comment écrire un article ?',
+    'Quelles rubriques choisir ?',
+    'Faut-il une clé API ?',
+    'Je suis perdu'
+  ];
+
+  function addMsg(text, who) {
+    var d = document.createElement('div');
+    d.className = 'msg ' + who;
+    d.innerHTML = text;
+    $('thread').appendChild(d);
+    $('thread').scrollTop = $('thread').scrollHeight;
+  }
+
+  function answer(q) {
+    var s = q.toLowerCase();
+    var best = null, bestScore = 0;
+    KB.forEach(function (item) {
+      var score = 0;
+      item.k.forEach(function (kw) { if (s.indexOf(kw) !== -1) score += kw.length; });
+      if (score > bestScore) { bestScore = score; best = item; }
+    });
+    if (best && bestScore >= 3) return best.a;
+    return 'Je n\'ai pas de réponse écrite pour ça. Je connais ces sujets : <b>publier</b>, <b>écrire un article</b>, ' +
+      '<b>rubriques</b>, <b>clé API / IA</b>, <b>changer d\'étape</b>, <b>sauvegarde</b>, <b>nom de domaine</b>, <b>être perdu</b>.<br>' +
+      'Pour une question ouverte, pose-la dans la conversation avec l\'agent : c\'est lui qui code.';
+  }
+
+  function send(q) {
+    if (!q.trim()) return;
+    addMsg(esc(q), 'me');
+    var a = answer(q);
+    setTimeout(function () { addMsg(a, 'bot'); }, 260);
+    $('ask').value = '';
+  }
+
+  $('send').addEventListener('click', function () { send($('ask').value); });
+  $('ask').addEventListener('keydown', function (e) { if (e.key === 'Enter') send($('ask').value); });
+
+  SUGGEST.forEach(function (s) {
+    var b = document.createElement('button');
+    b.textContent = s;
+    b.addEventListener('click', function () { send(s); });
+    $('chips').appendChild(b);
+  });
+
+  addMsg('Bonjour. Je suis l\'assistant <b>de ce site</b> : je connais les fichiers, les étapes et les pièges de Geoula Bulletin.<br>' +
+    'Je fonctionne sans connexion et sans clé. Choisis une question ci-dessous, ou écris la tienne.', 'bot');
+
+  /* ---------- Init ---------- */
+  paintChecklist();
+  loadDecisions();
+})();
+</script>
+</body>
+</html>
