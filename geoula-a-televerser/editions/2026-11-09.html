@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veille tech — édition du 9 novembre 2026 · Geoula</title>
+<meta name="description" content="Édition du 9 novembre 2026 — veille tech hebdomadaire : ce qui sort, à savoir, à creuser.">
+<style>
+:root{
+  --bg:#0e1116; --panel:#151a22; --panel-2:#1b222c; --line:#26303d;
+  --text:#e8edf4; --muted:#93a1b3;
+  --accent:#5eead4; --accent-2:#60a5fa; --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(1200px 700px at 10% -10%, #17202b 0%, var(--bg) 55%) no-repeat, var(--bg);
+  color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased; padding:32px 20px 72px;
+}
+.wrap{max-width:860px;margin:0 auto}
+nav.retour{margin-bottom:26px}
+nav.retour a{
+  color:var(--muted);text-decoration:none;font-size:14px;
+  display:inline-flex;align-items:center;gap:7px
+}
+nav.retour a:hover{color:var(--accent)}
+header.top{margin-bottom:30px;border-bottom:1px solid var(--line);padding-bottom:22px}
+.kicker{
+  text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:600;
+  color:var(--accent);margin:0 0 10px
+}
+h1{font-size:clamp(28px,4.4vw,40px);margin:0 0 10px;letter-spacing:-.02em;line-height:1.15}
+.sous{margin:0;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 20px;margin:16px 0 0;font-size:13px;color:var(--muted)}
+.stats b{color:var(--accent);font-weight:600}
+
+.rubrique{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;margin:20px 0
+}
+.rubrique h2{
+  font-size:17px;margin:0 0 16px;display:flex;align-items:center;gap:10px;
+  letter-spacing:-.01em
+}
+.rubrique .n{
+  margin-left:auto;font-size:11px;font-weight:700;color:var(--accent);
+  background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.25);
+  border-radius:999px;padding:2px 9px
+}
+.rubrique ul{list-style:none;margin:0;padding:0}
+.rubrique li{margin:0 0 15px;padding-left:16px;position:relative}
+.rubrique li::before{
+  content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;
+  border-radius:50%;background:var(--accent-2);opacity:.65
+}
+.rubrique li:last-child{margin-bottom:0}
+.rubrique a{
+  color:var(--text);text-decoration:none;font-weight:600;font-size:15.5px;
+  border-bottom:1px solid transparent
+}
+.rubrique a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.src{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.vide{color:var(--muted);font-style:italic;padding-left:0}
+.vide::before{display:none}
+
+footer{
+  margin-top:38px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between
+}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+@media(max-width:600px){
+  body{padding:22px 14px 56px}
+  .rubrique{padding:18px 16px;margin:16px 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="retour">
+    <a href="../index.html">← Geoula Bulletin</a>
+  </nav>
+
+  <header class="top">
+    <p class="kicker">Veille tech · édition du lundi</p>
+    <h1>9 novembre 2026</h1>
+    <p class="sous">Ce qui compte cette semaine, en trois rubriques.</p>
+    <div class="stats">
+      <span><b>12</b> titres retenus</span>
+      <span><b>331</b> articles analysés</span>
+      <span>3 rubriques</span>
+    </div>
+  </header>
+
+      <section class="rubrique">
+        <h2>🚀 Ce qui sort <span class="n">4</span></h2>
+        <ul>
+        <li>
+          <a href="https://github.com/waywardgeek/ensemble" target="_blank" rel="noopener">I Use Development-Driven Specs, Not Spec-Driven Development</a>
+          <span class="src">Hacker News</span>
+        </li>
+        <li>
+          <a href="https://www.science.org/content/article/wearable-device-makers-are-harvesting-brain-data-train-ai-without-telling-users?referrer=https%3A%2F%2Fwww.google.com%2F" target="_blank" rel="noopener">Consumer brain wave headsets threaten privacy</a>
+          <span class="src">Hacker News</span>
+        </li>
+        <li>
+          <a href="https://github.com/crmne/zapfast" target="_blank" rel="noopener">ZapFast: A fast, native WhatsApp client in Rust and egui</a>
+          <span class="src">Hacker News</span>
+        </li>
+        <li>
+          <a href="https://www.commodore.ca/commodore-products/commodore-pet-the-worlds-first-personal-computer/" target="_blank" rel="noopener">Commodore PET – The Worlds First Personal Computer</a>
+          <span class="src">Hacker News</span>
+        </li>
+        </ul>
+      </section>
+      <section class="rubrique">
+        <h2>🔐 À savoir <span class="n">4</span></h2>
+        <ul>
+        <li>
+          <a href="https://news.google.com/rss/articles/CBMivgFBVV95cUxOSHdwMWluLUlRVmZwTE1UcHp2YS1WS0Vwek45WW9aNTdrTjEyZEVFTnpFYWZvSVlsRG81UHJUQWRMX19wRmQ4ZVpOcHJjWGRYRDZ6Uk5nd21mQ2JHMTdRTEtUWmUzODY1TDRNbFdzbUhiRFdjaVdVcm9qcnVfRVBEeVVUSnhqekpVa2dZaGltbFFSakI2d0JNS0t3NERpQ3lrenNsNnJoWW8yYVp3R1dHclJKRmp3TGNoTzgtRWNn?oc=5" target="_blank" rel="noopener">Cybersécurité : comment les PME romandes font face aux attaques</a>
+          <span class="src">rts.ch</span>
+        </li>
+        <li>
+          <a href="https://news.google.com/rss/articles/CBMiuAFBVV95cUxPZjJqZkVBQmUwLU5TbTgzZE0zVGdweFVjWmxmdU9tdlJ0S3JZQmN6eUJDdThXeGRaNlFHeE1jSFdaR2hEYVkwYTdBTlF4and4TlFBMGdtQjhVbVVSMHRwbGVFMUlWLUMycVJ5aW9vOHlwb0QtQ190TFlSSmNhSUxaWkxrS25Ma01sQmdROUVudVp0YUJxM3FCeVZ2bENITEl6Z1NtVnFNM0lhOGxkQTZhcjJyTmtob0xS?oc=5" target="_blank" rel="noopener">Cyberattaque en Belgique : une entreprise d&#x27;aide à domicile dans le viseur de pirates</a>
+          <span class="src">FrenchBreaches</span>
+        </li>
+        <li>
+          <a href="https://news.google.com/rss/articles/CBMingFBVV95cUxOV2dwTUlyS0pONUFKWmItbnU0YWhYYW5DMFFOajExOTI1SHhoLWMweGtKcXQ5bGYyZkZKbG1tUjBTdVJyUjc3V2NTRERKU3luTWFlcjBNcjZDNFp5RlNiMUxxMl9HRWoya3JlTVV1WkZXU0x1MEFmUzREb3Nwb0VZVGF3OUtMV3ZsbnhKUEtkZVNSTUZWVGZpSWxSaU5JUQ?oc=5" target="_blank" rel="noopener">Fuite de données chez Burda Style après un piratage, des clients potentiellement concernés</a>
+          <span class="src">FrenchBreaches</span>
+        </li>
+        <li>
+          <a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxPWFMyMldQcmRYVTFkZzdpZGNNbzdvNW5uS3FObmtiSlpyaEMxRFlBckpLQkJRYzU2dWlnWV91QzYycmwzLWpCQ0cxbUVIRUJENGt4MjRIdXQ4VjcxZkR5MnFaVHVXNE9qZFhLU1EtRnd4b0tUWURaYjJIQ3BRcEExS3pRQW9oQ1lvbWtmcnpOaVhoamgwWG9WbnMyM1JNdkhyazUtUldzcXdpTXhCbnZIa2RR?oc=5" target="_blank" rel="noopener">Illicado et Smartbox piratés : cartes cadeaux et données clients visées avant Noël</a>
+          <span class="src">FrenchBreaches</span>
+        </li>
+        </ul>
+      </section>
+      <section class="rubrique">
+        <h2>💡 À creuser <span class="n">4</span></h2>
+        <ul>
+        <li>
+          <a href="https://next.ink/266278/flock-sale-temps-pour-les-gros-bros/" target="_blank" rel="noopener">Flock : sale temps pour les gros bros</a>
+          <span class="src">Next</span>
+        </li>
+        <li>
+          <a href="https://next.ink/266258/leurope-dedie-une-plateforme-et-525-millions-deuros-aux-concepteurs-de-puces/" target="_blank" rel="noopener">L’Europe dédie une plateforme et 525 millions d’euros aux concepteurs de puces</a>
+          <span class="src">Next</span>
+        </li>
+        <li>
+          <a href="https://next.ink/266259/google-microsoft-anthropic-et-openai-veulent-changer-robots-txt-pour-refuser-les-ia/" target="_blank" rel="noopener">Google, Microsoft, Anthropic et OpenAI veulent changer robots.txt pour refuser les IA</a>
+          <span class="src">Next</span>
+        </li>
+        <li>
+          <a href="https://next.ink/266199/lue-somme-tiktok-darreter-denfermer-ses-utilisateurs-dans-une-spirale-de-surutilisation/" target="_blank" rel="noopener">L’UE somme TikTok d’arrêter d’enfermer ses utilisateurs dans une spirale de surutilisation</a>
+          <span class="src">Next</span>
+        </li>
+        </ul>
+      </section>
+
+  <footer>
+    <span>Édition générée automatiquement · <a href="../index.html">tableau de bord</a></span>
+    <span><a href="./">Toutes les éditions</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

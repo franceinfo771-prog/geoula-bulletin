@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les éditions · Geoula Bulletin</title>
+<style>
+:root{--bg:#0e1116;--panel:#151a22;--line:#26303d;--text:#e8edf4;--muted:#93a1b3;--accent:#5eead4;--accent-2:#60a5fa;--radius:14px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(1200px 700px at 10% -10%, #17202b 0%, var(--bg) 55%) no-repeat, var(--bg);
+  color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55;-webkit-font-smoothing:antialiased;padding:32px 20px 72px
+}
+.wrap{max-width:860px;margin:0 auto}
+nav.retour{margin-bottom:26px}
+nav.retour a{color:var(--muted);text-decoration:none;font-size:14px}
+nav.retour a:hover{color:var(--accent)}
+.kicker{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:600;color:var(--accent);margin:0 0 10px}
+h1{font-size:clamp(26px,4vw,36px);margin:0 0 8px;letter-spacing:-.02em}
+.sous{margin:0 0 26px;color:var(--muted);font-size:15px}
+ul.liste{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+ul.liste li{margin:0 0 16px;padding-left:16px;position:relative}
+ul.liste li:last-child{margin-bottom:0}
+ul.liste li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--accent-2);opacity:.65}
+ul.liste a{color:var(--text);text-decoration:none;font-weight:600;font-size:15.5px;border-bottom:1px solid transparent}
+ul.liste a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.src{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="retour"><a href="../index.html">← Geoula Bulletin</a></nav>
+  <p class="kicker">Archives</p>
+  <h1>Toutes les éditions</h1>
+  <p class="sous">1 édition(s) — la plus récente en premier.</p>
+  <ul class="liste">
+      <li>
+        <a href="2026-11-09.html">09/11/2026 — édition du lundi</a>
+        <span class="src">Veille tech · 3 rubriques</span>
+      </li>
+  </ul>
+  <footer>Veille tech · chaque lundi · <a href="../index.html">tableau de bord du projet</a></footer>
+</div>
+</body>
+</html>
