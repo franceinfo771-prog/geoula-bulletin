@@ -19,9 +19,10 @@ padding:26px 0 18px;border-bottom:1px solid var(--line)}
 .site .nom{font-size:24px;font-weight:700;letter-spacing:-.02em}
 .site .nom b{color:var(--accent)}
 .site .dev{font-size:13px;color:var(--muted)}
-.site .imp{margin-left:auto;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+.site .imp,.site .mel{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
 padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
-.site .imp:hover{border-color:var(--accent);color:var(--accent)}
+.site .mel{margin-left:auto}
+.site .imp:hover,.site .mel:hover{border-color:var(--accent);color:var(--accent)}
 
 /* bandeau de tête */
 .tete{margin:26px 0 0;padding:20px 22px;border:1px solid var(--line);border-radius:14px;
@@ -154,7 +155,7 @@ border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
 .attente .vide{font-size:13px;color:var(--muted);font-style:italic}
 
 @media print{.voile,.nr,.attente{display:none!important}
-.onglets,.site .imp,#lecture,nav.retour,.tete .go{display:none}
+.onglets,.site .imp,.site .mel,#lecture,nav.retour,.tete .go{display:none}
  body{background:#fff;color:#111;padding:0}.panneau{display:block!important}
  h2{color:#0b3d3d}em{color:#333}strong{color:#000}.tbl{border-color:#ccc}
  th{background:#eee;color:#000}td{border-color:#ddd}.site,footer{border-color:#ccc}}
@@ -167,6 +168,7 @@ border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
     <span class="nom">Veille<b>.</b></span>
     <span class="dev">répertoire des notes · sources datées</span>
     <button class="nr" onclick="ouvrirNR()">＋ Nouvelle recherche</button>
+    <button class="mel" onclick="envoyerMail()">✉ M'envoyer par mail</button>
     <button class="imp" onclick="window.print()">🖨 Imprimer</button>
   </header>
 
@@ -565,8 +567,11 @@ border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
 
 <script>
 var IDS = ["accueil", "messianismes", "velo", "gueoula"];
+var actuelle = 'accueil';
+var registreJS = [{"id": "messianismes", "date": "2026-11-10", "titre": "Trois messianismes : 1666, le Mahdi, aujourd'hui", "question": "Que se passe-t-il quand une attente messianique datée échoue — et qu'est-ce que les trois traditions en font ?", "revision": "novembre 2027", "apport": "Quand la date échoue, le mouvement ne meurt pas : il produit une théologie du sens caché. Motif observé trois fois, dans trois religions — et une limite : trois cas ne font pas une loi."}, {"id": "velo", "date": "2026-11-09", "titre": "Le vélo en montagne", "question": "Le vélo est-il devenu un relais économique du ski dans les stations françaises ?", "revision": "mai 2027", "apport": "Quatre chiffres très cités se sont révélés faux, mal datés ou invérifiables. Le travail principal a été de les réfuter."}, {"id": "gueoula", "date": "2026-11-08", "titre": "La gueoula et la venue du Messie", "question": "Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?", "revision": "août 2027", "apport": "Le mot veut dire rédemption, pas fin du monde — et les trois traditions interdisent chacune le calcul de la date."}];
 
 function ouvrir(q) {
+  actuelle = q;
   for (var i = 0; i < IDS.length; i++) {
     var p = document.getElementById('n-' + IDS[i]);
     if (p) p.classList.toggle('vu', IDS[i] === q);
@@ -676,6 +681,26 @@ function majCompteur() {
   e.innerHTML = n
     ? '<b>' + n + '</b> demande' + (n > 1 ? 's' : '') + ' <b style="color:#fbbf24">en attente</b>'
     : 'aucune demande en attente';
+}
+
+/* ---------- envoi par mail ---------- */
+var DEST = "franceinfo771@gmail.com";
+function envoyerMail() {
+  var n = null;
+  for (var i = 0; i < registreJS.length; i++) if (registreJS[i].id === actuelle) n = registreJS[i];
+  if (!n) n = registreJS[0];
+  var NL = String.fromCharCode(10);
+  var corps = "NOTE — " + n.titre + NL
+            + n.date + " · révision prévue : " + n.revision + NL + NL
+            + n.question + NL + NL
+            + n.apport + NL + NL
+            + "Lien : " + location.href.split(String.fromCharCode(35))[0] + "#" + n.id + NL + NL
+            + "— envoyé depuis le répertoire des notes.";
+  var url = "https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(DEST)
+          + "&su=" + encodeURIComponent("Note — " + n.titre)
+          + "&body=" + encodeURIComponent(corps);
+  window.open(url, "_blank");
+  avis("Gmail s'ouvre avec la note");
 }
 
 document.addEventListener('keydown', function (ev) {
