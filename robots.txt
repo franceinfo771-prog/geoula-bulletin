@@ -1,0 +1,33 @@
+# Veille — notes documentées
+# Ce site n'est pas destiné à être référencé.
+# Les robots d'indexation sont priés de ne pas parcourir ni indexer ce domaine.
+
+User-agent: *
+Disallow: /
+
+# Robots d'archivage et d'IA : refus explicite
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+# Pas de plan du site : il n'y a rien à référencer.

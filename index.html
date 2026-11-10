@@ -1,252 +1,695 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
+<html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Geoula Bulletin — Journal de bord</title>
+<title>Veille — répertoire des notes</title>
+<meta name="description" content="Répertoire de notes de veille sourcées. La plus récente en tête.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
 <style>
-  :root{
-    --bg:#0e1116;
-    --panel:#151a22;
-    --panel-2:#1b222c;
-    --line:#26303d;
-    --text:#e8edf4;
-    --muted:#93a1b3;
-    --accent:#5eead4;
-    --accent-2:#60a5fa;
-    --done:#34d399;
-    --doing:#fbbf24;
-    --todo:#5b6878;
-    --radius:14px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:radial-gradient(1200px 700px at 10% -10%, #17202b 0%, var(--bg) 55%) no-repeat, var(--bg);
-    color:var(--text);
-    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-    padding:32px 20px 72px;
-  }
-  .wrap{max-width:920px;margin:0 auto}
+:root{--bg:#0e1116;--panel:#151a22;--panel2:#1b222c;--line:#26303d;--text:#e8edf4;--muted:#93a1b3;--accent:#5eead4;--accent2:#60a5fa}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1300px 760px at 8% -12%,#17202b 0%,var(--bg) 58%) no-repeat,var(--bg);
+color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+line-height:1.68;font-size:16px;padding:0 18px 110px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:800px;margin:0 auto}
+#lecture{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:200;transition:width .12s}
 
-  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;justify-content:space-between;margin-bottom:28px}
-  .brand h1{font-size:clamp(26px,4vw,36px);margin:0;letter-spacing:-.02em}
-  .brand h1 span{color:var(--accent)}
-  .brand p{margin:6px 0 0;color:var(--muted);font-size:15px}
-  .badge{
-    display:inline-flex;align-items:center;gap:8px;
-    background:var(--panel);border:1px solid var(--line);
-    padding:8px 14px;border-radius:999px;font-size:13px;color:var(--muted);
-  }
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(94,234,212,.14)}
+.site{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;
+padding:26px 0 18px;border-bottom:1px solid var(--line)}
+.site .nom{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.site .nom b{color:var(--accent)}
+.site .dev{font-size:13px;color:var(--muted)}
+.site .imp{margin-left:auto;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.site .imp:hover{border-color:var(--accent);color:var(--accent)}
 
-  section{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
-  section > h2{
-    font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-    margin:0 0 16px;font-weight:600;
-  }
+/* bandeau de tête */
+.tete{margin:26px 0 0;padding:20px 22px;border:1px solid var(--line);border-radius:14px;
+background:linear-gradient(180deg,rgba(94,234,212,.10),rgba(96,165,250,.04))}
+.tete .neuf{font-size:11px;text-transform:uppercase;letter-spacing:.16em;font-weight:700;color:var(--accent);margin:0 0 8px}
+.tete h1{margin:0 0 8px;font-size:clamp(25px,4vw,34px);letter-spacing:-.02em;line-height:1.2}
+.tete p{margin:0;color:var(--muted);font-size:14.5px}
+.tete .go{display:inline-block;margin-top:14px;background:var(--accent);color:#08231f;text-decoration:none;
+font-weight:700;font-size:14px;padding:9px 17px;border-radius:10px}
+.tete .go:hover{filter:brightness(1.08)}
 
-  /* --- Bandeau de position --- */
-  .now{background:linear-gradient(160deg,var(--panel-2),var(--panel));}
-  .now-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-bottom:16px}
-  .step-count{font-size:13px;color:var(--accent);font-weight:600;letter-spacing:.04em}
-  .now-title{font-size:clamp(19px,2.6vw,24px);font-weight:650;margin:0;letter-spacing:-.01em}
-  .now-sub{margin:8px 0 0;color:var(--muted);font-size:14.5px;max-width:62ch}
-  .bar{height:10px;border-radius:999px;background:#0b0f14;border:1px solid var(--line);overflow:hidden;margin:20px 0 10px}
-  .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
-  .bar-legend{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+/* répertoire */
+.rep-titre{display:flex;align-items:baseline;gap:10px;margin:36px 0 12px}
+.rep-titre h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:700;border:0;padding:0}
+.rep-titre .n{font-size:12px;color:var(--muted)}
+.rep{list-style:none;margin:0;padding:0}
+.rep li{border:1px solid var(--line);border-radius:12px;margin:0 0 9px;background:var(--panel);transition:.15s}
+.rep li:hover{border-color:#3a465a}
+.rep a{display:block;padding:13px 16px;text-decoration:none;color:var(--text)}
+.rep .l1{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.rep .t{font-weight:650;font-size:15px}
+.rep .d{font-size:12px;color:var(--muted);white-space:nowrap}
+.rep .m{font-size:12.8px;color:var(--muted);margin-top:4px;line-height:1.5}
+.rep .fam{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;
+padding:2px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.rep .fam.ch{color:var(--accent2);border-color:rgba(96,165,250,.4)}
+.rep .fam.tx{color:var(--accent);border-color:rgba(94,234,212,.35)}
+.rep a:hover .t{color:var(--accent)}
 
-  /* --- Frise --- */
-  ol.timeline{list-style:none;margin:0;padding:0}
-  ol.timeline li{position:relative;padding:0 0 22px 38px;border-left:2px solid var(--line);margin-left:9px}
-  ol.timeline li:last-child{border-left-color:transparent;padding-bottom:0}
-  .marker{
-    position:absolute;left:-11px;top:1px;width:20px;height:20px;border-radius:50%;
-    display:grid;place-items:center;font-size:11px;font-weight:700;
-    background:var(--panel);border:2px solid var(--todo);color:var(--todo);
-  }
-  li.done .marker{background:rgba(52,211,153,.15);border-color:var(--done);color:var(--done)}
-  li.doing .marker{background:rgba(251,191,36,.15);border-color:var(--doing);color:var(--doing)}
-  .t-title{font-weight:600;font-size:15.5px}
-  li.todo .t-title{color:var(--muted);font-weight:500}
-  .t-when{font-size:12.5px;color:var(--muted);margin-left:8px;font-weight:400}
-  .t-desc{font-size:14px;color:var(--muted);margin-top:3px;max-width:65ch}
-  .tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:8px;vertical-align:1px}
-  li.done .tag{color:var(--done);border-color:rgba(52,211,153,.35)}
-  li.doing .tag{color:var(--doing);border-color:rgba(251,191,36,.35)}
+nav.retour{margin:0 0 18px}
+nav.retour a{color:var(--muted);text-decoration:none;font-size:13.5px}
+nav.retour a:hover{color:var(--accent)}
 
-  /* --- Grilles --- */
-  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-  .card{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
-  .card .k{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
-  .card .v{font-size:20px;font-weight:650;margin-top:6px;letter-spacing:-.01em}
-  .card .v small{font-size:13px;color:var(--muted);font-weight:400}
-  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:#0b0f14;border:1px solid var(--line);padding:1.5px 6px;border-radius:6px;color:#cfe0f3}
+h1.titre-note{font-size:clamp(27px,4.4vw,40px);line-height:1.16;letter-spacing:-.02em;margin:0 0 12px}
+h2{font-size:clamp(19px,2.6vw,23px);margin:44px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--accent)}
+h3{font-size:17px;margin:26px 0 10px}
+h4{font-size:15px;margin:20px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kicker{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:700;color:var(--accent);margin:0 0 10px}
+.sous{color:var(--muted);font-size:15px;margin:0 0 6px}
+.piednote{color:var(--muted);font-size:13px;margin:14px 0 0}
+.panneau{display:none}
+.panneau.vu{display:block}
+p{margin:0 0 14px} ul,ol{margin:0 0 16px;padding-left:22px} li{margin:0 0 7px}
+strong{color:#fff;font-weight:650} em{color:var(--accent2)}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:14px}
+blockquote{margin:16px 0;padding:10px 18px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0}
+blockquote p:last-child{margin:0}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+.tbl{overflow-x:auto;margin:16px 0 22px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{background:var(--panel2);text-align:left;padding:10px 12px;font-size:12px;text-transform:uppercase;
+letter-spacing:.07em;color:var(--accent);border-bottom:1px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+footer{margin-top:54px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+footer b{color:var(--accent)}
+/* ---- statuts ---- */
+.statut{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;
+text-transform:uppercase;letter-spacing:.1em;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.statut.prete{background:rgba(94,234,212,.14);color:var(--accent);border:1px solid rgba(94,234,212,.35)}
+.statut.attente{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.35)}
 
-  table.files{width:100%;border-collapse:collapse;font-size:14px}
-  table.files th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:0 0 10px}
-  table.files td{padding:9px 0;border-top:1px solid var(--line);vertical-align:top}
-  table.files td:first-child{white-space:nowrap;padding-right:16px}
-  table.files td:last-child{color:var(--muted)}
+/* bandeau de statut global */
+.etat-site{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
+margin:20px 0 0;padding:11px 16px;border:1px solid var(--line);border-radius:11px;
+background:var(--panel);font-size:13px;color:var(--muted)}
+.etat-site b{color:var(--text);font-weight:600}
+.etat-site .p{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px}
+.etat-site .p.att{background:#fbbf24}
 
-  ul.next{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-  ul.next li{display:flex;gap:11px;align-items:flex-start;font-size:14.5px}
-  ul.next .n{
-    flex:0 0 auto;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
-    background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.35);color:#93c5fd;font-size:12px;font-weight:700;margin-top:1px;
-  }
-  ul.next .n b{font-weight:600;color:var(--text)}
-  ul.next .n + div span{color:var(--muted)}
+/* archives */
+.arch{margin:38px 0 0}
+.arch h2{font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);
+font-weight:700;border:0;padding:0;margin:0 0 14px}
+.mois{margin:0 0 22px}
+.mois .m-titre{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;
+text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);margin:0 0 9px}
+.mois .m-titre::after{content:"";flex:1;height:1px;background:var(--line)}
+.mois .m-n{font-size:11px;color:var(--muted);letter-spacing:0}
+.arch ul{list-style:none;margin:0;padding:0}
+.arch li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;
+border:1px solid var(--line);border-radius:11px;background:var(--panel);margin:0 0 8px;transition:.15s}
+.arch li:hover{border-color:#3a465a}
+.arch li a{flex:1 1 auto;display:block;padding:11px 14px;text-decoration:none;color:var(--text);min-width:0}
+.arch .t{font-weight:650;font-size:14.5px}
+.arch .q{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.arch .dt{font-size:12px;color:var(--muted);padding-right:14px;white-space:nowrap}
+.arch li:hover .t{color:var(--accent)}
+.arch a{display:flex!important;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
 
-  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:26px;line-height:1.8}
-  footer strong{color:var(--text);font-weight:600}
-  @media (prefers-reduced-motion:reduce){.bar > i{transition:none}}
-</style>
-</head>
+/* ---- nouvelle recherche ---- */
+.nr{margin-left:8px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;
+padding:7px 13px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:#08231f}
+.nr:hover{filter:brightness(1.08)}
+.voile{position:fixed;inset:0;background:rgba(5,8,12,.72);backdrop-filter:blur(3px);z-index:300;
+display:none;align-items:flex-start;justify-content:center;padding:60px 16px 20px;overflow:auto}
+.voile.on{display:flex}
+.boite{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:520px;width:100%;
+padding:22px 24px 20px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.boite h3{margin:0 0 6px;font-size:19px;letter-spacing:-.01em;color:var(--accent)}
+.boite .aide{margin:0 0 16px;font-size:13px;color:var(--muted);line-height:1.55}
+.boite label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;
+color:var(--muted);font-weight:700;margin:0 0 6px}
+.boite input,.boite textarea{width:100%;background:var(--panel2);border:1px solid var(--line);
+color:var(--text);font:inherit;font-size:14px;padding:10px 12px;border-radius:9px;outline:none;margin:0 0 14px}
+.boite textarea{min-height:64px;resize:vertical;line-height:1.5}
+.boite input:focus,.boite textarea:focus{border-color:var(--accent)}
+.boite .champs{font-size:12px;color:var(--muted);margin:-8px 0 14px}
+.pied-boite{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.pied-boite button{font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:9px 15px;
+border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.pied-boite button:hover{border-color:var(--accent);color:var(--accent)}
+.pied-boite button.ok{background:var(--accent);color:#08231f;border-color:var(--accent)}
+.pied-boite button.ok:hover{filter:brightness(1.08);color:#08231f}
+
+/* attente */
+.attente{margin:34px 0 0;padding:14px 18px;border:1px dashed var(--line);border-radius:12px;background:rgba(96,165,250,.04)}
+.attente .ti{font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--accent2);margin:0 0 10px}
+.attente ul{list-style:none;margin:0;padding:0}
+.attente li{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:13.5px;
+border-top:1px solid var(--line);padding:9px 0 0;margin:9px 0 0}
+.attente li:first-child{border-top:0;padding-top:0;margin-top:0}
+.attente .q{flex:1 1 200px;min-width:0}
+.attente .q b{color:var(--text)}
+.attente .q i{color:var(--muted);font-style:normal;display:block;font-size:12.5px;margin-top:2px}
+.attente .pt{font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:5px 9px;border-radius:7px;
+border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+.attente .pt:hover{border-color:var(--accent);color:var(--accent)}
+.attente .pt.sup:hover{border-color:#f87171;color:#f87171}
+.attente .vide{font-size:13px;color:var(--muted);font-style:italic}
+
+@media print{.voile,.nr,.attente{display:none!important}
+.onglets,.site .imp,#lecture,nav.retour,.tete .go{display:none}
+ body{background:#fff;color:#111;padding:0}.panneau{display:block!important}
+ h2{color:#0b3d3d}em{color:#333}strong{color:#000}.tbl{border-color:#ccc}
+ th{background:#eee;color:#000}td{border-color:#ddd}.site,footer{border-color:#ccc}}
+</style></head>
 <body>
+<div id="lecture"></div>
 <div class="wrap">
 
-  <header class="top">
-    <div class="brand">
-      <h1>Geoula <span>Bulletin</span></h1>
-      <p>Journal de bord du projet — pour savoir à tout moment où vous en êtes.</p>
-    </div>
-    <div class="badge"><span class="dot"></span><span id="freshness">état à jour</span></div>
+  <header class="site">
+    <span class="nom">Veille<b>.</b></span>
+    <span class="dev">répertoire des notes · sources datées</span>
+    <button class="nr" onclick="ouvrirNR()">＋ Nouvelle recherche</button>
+    <button class="imp" onclick="window.print()">🖨 Imprimer</button>
   </header>
 
-  <!-- OÙ VOUS EN ÊTES -->
-  <section class="now">
-    <div class="now-top">
-      <span class="step-count" id="step-count">Étape 3 sur 6</span>
-      <h2 class="now-title" id="step-title" style="font-size:clamp(19px,2.6vw,24px);letter-spacing:-.01em">Définir le contenu du bulletin</h2>
-    </div>
-    <p class="now-sub" id="step-sub">
-      Le site est en ligne et l'Atelier est disponible pour vous guider. Il reste la décision de fond&nbsp;:
-      qui lit ce bulletin, à quelle fréquence, et quelles rubriques&nbsp;? Répondez-y et tout le reste s'enchaîne.
-    </p>
-    <div class="bar"><i id="progress-bar"></i></div>
-    <div class="bar-legend"><span>Projet démarré</span><span id="progress-label">3 / 6 étapes</span></div>
-  </section>
+  
+<section class="panneau vu" id="n-accueil">
+  <div class="etat-site">
+    <span><span class="p"></span>Dernière note <b>prête</b> le <b>10 novembre 2026</b></span>
+    <span>·</span>
+    <span><b>3</b> notes au répertoire</span>
+    <span>·</span>
+    <span id="etat-attente">aucune demande en attente</span>
+  </div>
 
-  <!-- FRISE DES ÉTAPES -->
-  <section>
-    <h2>Les étapes du projet</h2>
-    <ol class="timeline">
-      <li class="done">
-        <span class="marker">✓</span>
-        <div class="t-title">Dépôt créé <span class="t-when">28 août 2026</span><span class="tag">fait</span></div>
-        <div class="t-desc">Dépôt GitHub <code>geoula-bulletin</code> initialisé, branche <code>main</code> prête. Aucun contenu au-delà du README.</div>
-      </li>
-      <li class="done">
-        <span class="marker">✓</span>
-        <div class="t-title">Page de suivi d'avancement <span class="t-when">aujourd'hui</span><span class="tag">fait</span></div>
-        <div class="t-desc">Cette page&nbsp;: la seule source de vérité sur l'état du projet. Plus l'<a href="atelier.html" style="color:#5eead4">Atelier</a>, l'assistant intégré qui explique quoi faire.</div>
-      </li>
-      <li class="doing">
-        <span class="marker">3</span>
-        <div class="t-title">Définir le contenu du bulletin <span class="tag">en cours</span></div>
-        <div class="t-desc">Quelles rubriques, à quelle fréquence, avec quelles informations&nbsp;? C'est la décision qui débloque tout le reste — consignez-la dans l'onglet « Mes décisions » de l'Atelier.</div>
-      </li>
-      <li class="todo">
-        <span class="marker">4</span>
-        <div class="t-title">Maquette et charte graphique <span class="tag">à venir</span></div>
-        <div class="t-desc">Mise en page de la page d'accueil du bulletin, couleurs, typographie, lisibilité mobile.</div>
-      </li>
-      <li class="todo">
-        <span class="marker">5</span>
-        <div class="t-title">Construire le bulletin <span class="tag">à venir</span></div>
-        <div class="t-desc">Le site réel&nbsp;: rubriques, articles, dates de publication, archives consultables.</div>
-      </li>
-      <li class="doing">
-        <span class="marker">6</span>
-        <div class="t-title">Mettre en ligne <span class="tag">partiel</span></div>
-        <div class="t-desc">GitHub Pages est actif. Reste à confirmer que la publication se fait bien depuis <code>main</code> (Settings → Pages).</div>
-      </li>
-    </ol>
-  </section>
+  <div class="tete">
+    <p class="neuf">● Dernière note <span class="statut prete">✓ prête</span></p>
+    <h1>Trois messianismes : 1666, le Mahdi, aujourd'hui</h1>
+    <p>Que se passe-t-il quand une attente messianique datée échoue — et qu'est-ce que les trois traditions en font ?</p>
+    <a class="go" href="#messianismes" onclick="ouvrir('messianismes');return false;">Lire la note →</a>
+  </div>
 
-  <!-- ÉTAT TECHNIQUE -->
-  <section>
-    <h2>État réel du dépôt <span style="text-transform:none;letter-spacing:0;font-weight:400">— vérifié automatiquement</span></h2>
-    <div class="grid">
-      <div class="card"><div class="k">Branche de travail</div><div class="v" id="g-branch" style="font-size:15px">arena/5727047d-geoula-bulletin</div></div>
-      <div class="card"><div class="k">Dernier enregistrement</div><div class="v" id="g-commit" style="font-size:15px">—</div></div>
-      <div class="card"><div class="k">Fichiers suivis</div><div class="v" id="g-files">—</div></div>
-      <div class="card"><div class="k">Articles du bulletin</div><div class="v">0 <small>rubrique&nbsp;: 0</small></div></div>
-    </div>
-  </section>
+  <div class="attente" id="attente">
+    <p class="ti">Demandes en attente <span class="statut attente">⏳ en cours</span></p>
+    <ul id="att-liste"></ul>
+    <p class="vide" id="att-vide">Aucune demande en attente. Cliquez sur « ＋ Nouvelle recherche ».</p>
+  </div>
 
-  <!-- CONTENU -->
-  <section>
-    <h2>Ce que contient le projet aujourd'hui</h2>
-    <table class="files">
-      <thead><tr><th>Fichier</th><th>Rôle</th></tr></thead>
-      <tbody>
-        <tr><td><code>index.html</code></td><td>Cette page de suivi d'avancement (et point de départ du futur site).</td></tr>
-        <tr><td><code>atelier.html</code></td><td>L'Atelier&nbsp;: assistant intégré pour construire le site (sans clé API).</td></tr>
-        <tr><td><code>ETAT.md</code></td><td>Le même état, en version texte, lisible directement sur GitHub.</td></tr>
-        <tr><td><code>etat.json</code></td><td>Les informations techniques (branche, commit, date) lues par cette page.</td></tr>
-        <tr><td><code>scripts/etat.sh</code></td><td>Régénère <code>etat.json</code> pour que la page ne soit jamais périmée.</td></tr>
-        <tr><td><code>README.md</code></td><td>Présentation du dépôt.</td></tr>
-      </tbody>
-    </table>
-  </section>
+  <div class="arch"><h2>Archives · notes précédentes</h2><div class="mois"><p class="m-titre">novembre 2026<span class="m-n">2 notes</span></p><ul><li><a href="#velo" onclick="ouvrir('velo');return false;"><span class="t">Le vélo en montagne</span><span class="fam ch">chiffrée</span><span class="dt">9 novembre 2026</span><span class="q">Le vélo est-il devenu un relais économique du ski dans les stations françaises ?</span></a></li><li><a href="#gueoula" onclick="ouvrir('gueoula');return false;"><span class="t">La gueoula et la venue du Messie</span><span class="fam tx">textuelle</span><span class="dt">8 novembre 2026</span><span class="q">Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</span></a></li></ul></div></div>
+</section>
 
-  <!-- PROCHAINES ACTIONS -->
-  <section>
-    <h2>Les 3 prochaines actions</h2>
-    <ul class="next">
-      <li><span class="n">1</span><div><b>Répondre à trois questions</b><br><span>Qui lit ce bulletin, à quelle fréquence, et quelles rubriques doit-il contenir&nbsp;? → onglet « Mes décisions » de l'Atelier.</span></div></li>
-      <li><span class="n">2</span><div><b>Confirmer la publication</b><br><span>Settings → Pages : la source doit être <code>main</code> et <code>/ (root)</code>.</span></div></li>
-      <li><span class="n">3</span><div><b>Remplir le premier bulletin</b><br><span>Le site prend vie avec de vrais contenus, puis on le met en ligne.</span></div></li>
-    </ul>
-  </section>
+  <section class="panneau" id="n-messianismes">
+<nav class="retour"><a href="#accueil" onclick="ouvrir('accueil');return false;">← Répertoire</a></nav>
+<p class="kicker">Note documentée · trois religions, trois cas</p>
+<h1 class="titre-note">Trois messianismes : 1666, le Mahdi, aujourd'hui</h1>
+<p class="sous">Que se passe-t-il quand une attente messianique datée échoue — et qu'est-ce que les trois traditions en font ?</p>
+<p class="piednote"><span class="statut prete">✓ prête</span> publiée le 10 novembre 2026 · à revoir en novembre 2027</p>
+<h1>Note de recherche — Trois messianismes : 1666, le Mahdi, aujourd'hui</h1>
+<p><strong>Thème :</strong> le sabbatéisme, la divergence sunnite/chiite sur le Mahdi, les mouvements messianiques contemporains <strong>Question posée :</strong> <em>que se passe-t-il quand une attente messianique datée échoue — et qu'est-ce que les trois traditions en font ?</em> <strong>Date de la note :</strong> 10/11/2026 · <strong>à revoir :</strong> novembre 2027 <strong>Périmètre :</strong> sources académiques et encyclopédiques, français et anglais, publications de 1998 à 2026</p>
+<hr>
+<h2>1. Le résultat de la recherche, en une phrase</h2>
+<blockquote>**Trois cas, une même mécanique : quand la date échoue, le mouvement ne meurt pas — il produit</blockquote>
+<blockquote>une théologie du sens caché.** Ce n'est pas une loi sociologique, c'est un motif observé</blockquote>
+<blockquote>trois fois, à trois siècles d'écart, dans trois religions.</blockquote>
+<p>C'est le point le plus solide de cette note. Il est aussi le plus dérangeant : <strong>l'échec n'est pas la réfutation.</strong> Il devient la matière première de l'étape suivante.</p>
+<hr>
+<h2>2. Le cas le mieux documenté : Sabbataï Tsevi et 1666</h2>
+<h3>La chronologie, établie</h3>
+<div class="tbl"><table><thead><tr><th>Date</th><th>Événement</th><th>Source</th></tr></thead><tbody><tr><td><strong>1626</strong></td><td>naissance à Smyrne (Izmir)</td><td>Britannica</td></tr><tr><td><strong>avril-mai 1665</strong></td><td>à Gaza, <strong>Nathan de Gaza</strong> (né vers 1643-44) le proclame Messie</td><td>Britannica, Encyclopaedia Judaica</td></tr><tr><td><strong>automne 1665</strong></td><td>à Smyrne, il se déclare publiquement Messie, à Roch Hachana</td><td>Britannica</td></tr><tr><td><strong>15 sivan 5426 = 18 juin 1666</strong></td><td>date de la rédemption fixée par Nathan</td><td>Encyclopaedia Judaica</td></tr><tr><td><strong>6 février 1666</strong></td><td>arrêté en mer de Marmara, emprisonné</td><td>Encyclopaedia Judaica</td></tr><tr><td><strong>septembre 1666</strong></td><td>conduit devant le sultan <strong>Mehmed IV</strong> à Andrinople</td><td>Britannica</td></tr><tr><td><strong>15 ou 16 septembre 1666</strong></td><td><strong>conversion à l'islam</strong> au nom d'Aziz Mehmed Efendi</td><td>⚠️ voir ci-dessous</td></tr><tr><td><strong>1676</strong></td><td>mort en exil, en Albanie</td><td>Britannica</td></tr></tbody></table></div>
+<h3>⚠️ Une contradiction à ne pas masquer</h3>
+<p><strong>Les sources sérieuses ne s'accordent pas sur le jour exact.</strong></p>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Date donnée</th></tr></thead><tbody><tr><td>Britannica, plusieurs synthèses universitaires</td><td><strong>16 septembre 1666</strong></td></tr><tr><td>Encyclopaedia Judaica (article « Shabbetai Ẓevi »)</td><td><strong>15 septembre 1666</strong>, « confirmé par de nombreuses sources »</td></tr><tr><td>Une notice encyclopédique de synthèse</td><td><strong>15 septembre</strong>, ailleurs <strong>16 septembre</strong> dans le même texte</td></tr></tbody></table></div>
+<p><strong>Ce que ça dit :</strong> même sur un événement central, daté et abondamment documenté, <strong>les références de référence divergent d'un jour.</strong> C'est un rappel utile : la précision affichée n'est pas toujours de la précision réelle. <strong>Je retiens « 15-16 septembre 1666 »</strong>, sans trancher.</p>
+<h3>Ce qui s'est passé chez ses disciples</h3>
+<p><strong>Nathan de Gaza n'a jamais converti.</strong> Il est resté juif, excommunié par les rabbins de son propre camp. Et il a produit la réponse qui compte :</p>
+<blockquote><strong>« La descente pour l'amour de la montée »</strong> (<em>yeridah tzorech aliyah</em>) : la conversion</blockquote>
+<blockquote>n'est pas un échec, c'est une <strong>plongée volontaire dans l'impureté</strong> pour aller y récupérer</blockquote>
+<blockquote>les étincelles divines prisonnières des <em>kelipot</em>.</blockquote>
+<p>C'est une théologie entière, construite <strong>après</strong> le démenti, pour l'intégrer au lieu de le nier. Sa base : le traité <em>Derush ha-Tanninim</em> (« Sur les dragons »), rédigé en 1666, l'année même.</p>
+<h3>Ce qu'il est advenu du mouvement</h3>
+<div class="tbl"><table><thead><tr><th>Date</th><th>Événement</th></tr></thead><tbody><tr><td><strong>1683</strong></td><td>conversion massive à Salonique : <strong>200 à 300 familles</strong> sabbatéennes → naissance des <strong>Dönme</strong></td></tr><tr><td><strong>1774</strong></td><td>≈ <strong>600 familles</strong> Dönme à Salonique (Niebuhr)</td></tr><tr><td><strong>vers 1900</strong></td><td>≈ <strong>10 000 personnes</strong>, un tiers de la population formellement musulmane de la ville</td></tr><tr><td><strong>1924</strong></td><td>échange de populations Grèce-Turquie : les Dönme, formellement musulmans, sont expulsés vers Istanbul et Izmir</td></tr><tr><td><strong>aujourd'hui</strong></td><td>≈ <strong>25 000 Turcs d'origine sabbatéenne</strong>, très largement assimilés</td></tr></tbody></table></div>
+<p><strong>Lecture :</strong> l'échec de 1666 a produit <strong>une communauté qui a survécu 250 ans</strong>, avec une double identité assumée — nom public turc, nom secret juif, un quartier à Salonique, ses propres lieux de prière. <strong>Ce n'est pas un détail folklorique : c'est la preuve que le mouvement a continué de vivre.</strong></p>
+<p>⚠️ <strong>Le chiffre de 25 000</strong> vient d'une société savante consacrée au crypto-judaïsme, pas d'un recensement. <strong>Confiance moyenne.</strong></p>
+<hr>
+<h2>3. Le Mahdi : sunnisme contre chiisme — la vraie différence</h2>
+<p>Ce n'est <strong>pas</strong> une différence d'intensité. C'est une différence de <strong>nature</strong>.</p>
+<div class="tbl"><table><thead><tr><th></th><th><strong>Sunnisme</strong></th><th><strong>Chiisme duodécimain</strong></th></tr></thead><tbody><tr><td><strong>Le Mahdi est-il né ?</strong></td><td><strong>Non</strong> — il naîtra à la fin des temps</td><td><strong>Oui</strong> — Muhammad al-Mahdi, né vers <strong>868-870</strong> à Samarra</td></tr><tr><td><strong>Est-il occulté ?</strong></td><td><strong>Non</strong> — il n'y a aucune occultation</td><td><strong>Oui</strong> — occultation en <strong>874</strong></td></tr><tr><td><strong>Qui est-il ?</strong></td><td>un descendant de Muhammad par Fatima, <strong>une figure future</strong></td><td><strong>le douzième imam</strong>, vivant et caché depuis douze siècles</td></tr><tr><td><strong>Place dans la foi</strong></td><td>un élément de l'eschatologie, <strong>parmi d'autres</strong></td><td><strong>le pivot</strong> — « non pas une partie du credo, mais le pivot »</td></tr><tr><td><strong>Rapport à Jésus</strong></td><td>Jésus revient et <strong>tue le Dajjal</strong> ; certains identifient Jésus au Mahdi</td><td>Jésus revient <strong>aux côtés</strong> du Mahdi</td></tr></tbody></table></div>
+<h3>Le détail qui compte le plus</h3>
+<p><strong>Un très grand savant sunnite a nié que le Mahdi soit une figure distincte.</strong> <strong>Ibn Khaldoun</strong> (m. 1406), dans la <em>Muqaddima</em>, soutient que c'est <strong>Jésus</strong> qui remplira ce rôle — « Mahdi » n'étant alors qu'un titre de Jésus.</p>
+<p><strong>Conséquence :</strong> l'idée reçue selon laquelle « tous les musulmans attendent le Mahdi » est fausse. <strong>Une partie de la tradition sunnite la plus savante l'a contestée pendant six siècles.</strong></p>
+<h3>Les deux occultations, datées</h3>
+<div class="tbl"><table><thead><tr><th>Phase</th><th>Dates</th><th>Ce qui s'y passe</th></tr></thead><tbody><tr><td><strong>Occultation mineure</strong></td><td><strong>874 → 940/941</strong></td><td>quatre délégués (<em>sufara</em>) transmettent ses réponses</td></tr><tr><td><strong>Occultation majeure</strong></td><td><strong>941 → aujourd'hui</strong></td><td>plus aucun représentant ; il se manifestera à la fin des temps</td></tr></tbody></table></div>
+<p>⚠️ <strong>Les dates varient d'une source à l'autre</strong> : 873 ou 874 pour le début ; 939, 940 ou 941 pour la fin de la mineure. <strong>Je retiens 874 et 940-941</strong>, en signalant la marge.</p>
+<h3>Ce que cette doctrine produit concrètement</h3>
+<p>Puisque l'imam est absent, <strong>qui détient l'autorité ?</strong> La réponse chiite est un dispositif juridique, pas une personne : l'<em>ijtihad</em> (effort d'interprétation) et le <em>taqlid</em> (le fidèle suit un <em>mujtahid</em> reconnu). D'où, à partir du XIXᵉ siècle, l'entrée des <em>oulémas</em> en politique.</p>
+<p><strong>C'est là que se joue la différence politique :</strong> dans le sunnisme, un pouvoir peut être légitime sans le Mahdi. Dans le chiisme duodécimain, <strong>tout pouvoir terrestre est par définition une usurpation en attendant le douzième.</strong></p>
+<hr>
+<h2>4. Aujourd'hui : trois mouvements, trois rapports à l'échec</h2>
+<h3>A. Habad-Loubavitch — l'échec le plus récent, et le mieux étudié</h3>
+<div class="tbl"><table><thead><tr><th>Date</th><th>Fait</th></tr></thead><tbody><tr><td><strong>1991</strong></td><td>le chant <em>Yechi</em> (« Vive notre Maître, notre Rabbi, le Roi Messie ») se répand</td></tr><tr><td><strong>avril 1992</strong></td><td>des rabbins loubavitch identifient Schneerson comme le Messie dans une déclaration</td></tr><tr><td><strong>12 juin 1994</strong></td><td><strong>mort de Menachem Mendel Schneerson</strong>, sans successeur</td></tr><tr><td><strong>après 1994</strong></td><td>scission : <em>meshichistes</em> (il est le Messie) et <em>anti-meshichistes</em></td></tr></tbody></table></div>
+<p><strong>Les deux branches du démenti, formulées explicitement :</strong></p>
+<ul><li><strong>« il n'est pas mort »</strong> — certains refusent le décès lui-même ;</li><li><strong>« il reviendra »</strong> — d'autres acceptent la mort et attendent la résurrection.</li></ul>
+<p><strong>Ce qu'en disent les chercheurs :</strong> Rachel Elior relie la montée du messianisme habad aux suites de la Shoah ; le sociologue <strong>David Berger</strong> parle d'un « scandale de l'indifférence orthodoxe » — c'est-à-dire du silence des autres courants.</p>
+<p>⚠️ <strong>Contradiction documentée, à ne pas masquer :</strong> <strong>Zalman Shmotkin, directeur de chabad.org</strong>, affirme : <em>« Les gens ne croient pas réellement que le Rebbe est le Messie. Ils disent y croire, mais en réalité ils l'espèrent, ils prient pour cela. »</em> <strong>Berger et d'autres observateurs soutiennent l'inverse.</strong> Le désaccord porte sur le nombre, et <strong>il n'existe aucune mesure fiable.</strong> → <strong>Indécidable.</strong></p>
+<h3>B. Breslev — attention, ce n'est pas la même chose</h3>
+<p>Le mouvement <strong>Na Nach</strong> (le slogan « Na Nach Nachma Nachman Me'uman ») est souvent cité comme messianique. <strong>C'est en partie inexact.</strong></p>
+<ul><li><strong>Le Rebbe Nahman de Breslev (1772-1810) n'a jamais dit être le Messie.</strong> Il a enseigné le</li></ul>
+<p>  concept du <em>tzaddik ha-dor</em> — le juste d'une génération, qui <em>pourrait</em> être le Messie   si les conditions étaient réunies. Il a dit : « Ma lumière brûlera jusqu'à la venue du Messie. »</p>
+<ul><li>Le slogan vient d'un <strong>billet</strong> (<em>petek</em>) que Rabbi Yisroel Ber Odesser dit avoir reçu en <strong>1922</strong>.</li><li>⚠️ <strong>La formule n'apparaît nulle part dans la littérature breslov avant 1922.</strong> Les chercheurs</li></ul>
+<p>  sceptiques en tirent que le billet est une fabrication ; les partisans y voient une preuve   de son origine céleste. <strong>Indécidable — et sans importance pour la question posée.</strong></p>
+<p><strong>Ce que ça change :</strong> Breslev est un cas de <strong>ferveur joyeuse et de diffusion</strong>, pas de proclamation messianique personnelle. <strong>Ne pas confondre les deux.</strong></p>
+<h3>C. L'État islamique — la prophétie qui a échoué, et le silence</h3>
+<div class="tbl"><table><thead><tr><th>Date</th><th>Fait</th></tr></thead><tbody><tr><td><strong>juin 2014</strong></td><td>proclamation du califat</td></tr><tr><td><strong>juillet 2014</strong></td><td>premier numéro de la revue <strong>Dabiq</strong>, du nom d'une localité syrienne</td></tr><tr><td><strong>2014</strong></td><td>prise de Dabiq « alors qu'elle n'a aucun intérêt militaire »</td></tr><tr><td><strong>octobre 2016</strong></td><td><strong>perte de Dabiq</strong></td></tr><tr><td><strong>2017</strong></td><td>perte de Mossoul, effondrement du califat territorial</td></tr></tbody></table></div>
+<p>La prophétie : <em>« L'Heure ne viendra pas avant que les Romains ne débarquent à al-A'maq ou Dabiq »</em>, puis la conquête de Constantinople, puis de Rome, puis le Jugement.</p>
+<p>**Ce que note William McCants (Brookings, <em>The ISIS Apocalypse</em>, 2015) :<strong> les deux échecs majeurs — </strong>la perte de Dabiq<strong> et </strong>la perte du califat** — n'ont pas été traités théologiquement. <em>« Ils ne se sont pas vraiment confrontés aux deux grands échecs de leur propagande apocalyptique. »</em> Rome est un terrain plus sûr : elle n'a jamais été prise.</p>
+<p><strong>Et une donnée que les recruteurs ont ignorée :</strong> le même corpus de hadiths qu'ils invoquent place l'Antichrist (Dajjal) précisément <strong>entre la Syrie et l'Irak</strong> — le territoire du califat. McCants : <em>« dans l'imagination apocalyptique, les faits gênants entravent rarement la marche glorieuse vers la fin du monde. »</em></p>
+<hr>
+<h2>5. Ce que les trois cas ont en commun — et la limite</h2>
+<h3>Le mécanisme, identique</h3>
+<div class="tbl"><table><thead><tr><th>Cas</th><th>Échec</th><th>Réponse produite</th></tr></thead><tbody><tr><td><strong>1666</strong></td><td>conversion au lieu du couronnement</td><td><strong>« descente pour l'amour de la montée »</strong></td></tr><tr><td><strong>1994</strong></td><td>mort sans avoir régné</td><td><strong>« il n'est pas mort »</strong> / <strong>« il reviendra »</strong></td></tr><tr><td><strong>2014-2017</strong></td><td>perte de Dabiq et du califat</td><td><strong>silence, déplacement vers une prophétie invérifiable</strong></td></tr></tbody></table></div>
+<p><strong>Le schéma en trois temps :</strong></p>
+<ol><li>une attente <strong>datée et publique</strong> ;</li><li>un échec <strong>visible et non ambigu</strong> ;</li><li><strong>une réinterprétation qui préserve la croyance</strong> en déplaçant le sens vers un plan caché.</li></ol>
+<h3>⚠️ La limite, qu'il faut dire</h3>
+<p><strong>Trois cas ne font pas une loi.</strong> Ce que je décris est un <strong>motif observé</strong>, dans trois religions, à trois époques. Ce n'est <strong>pas</strong> une prédiction : il existe des mouvements qui meurent de leur échec, et d'autres qui ne datent jamais rien — donc ne peuvent pas échouer.</p>
+<p><strong>Et une différence de taille avec les cas classiques étudiés par Festinger :</strong> ici, <strong>personne n'a mesuré les effectifs avant et après.</strong> On sait que les mouvements ont survécu ; on ne sait pas <strong>quelle proportion</strong> est restée.</p>
+<hr>
+<h2>6. Ce qui est faux, et qu'il faut écarter</h2>
+<h3>❌ « 1666 = 6 + 6 + 6, le chiffre de la Bête »</h3>
+<p><strong>Faux.</strong> La date de 1666 vient d'un <strong>calcul kabbalistique</strong> sur les cycles cosmiques (les <em>yovel</em>), pas d'une addition de chiffres. <strong>Aucune des sources universitaires consultées ne mentionne cette interprétation.</strong> Elle circule surtout sur des sites complotistes.</p>
+<h3>❌ « Plus de la moitié des Juifs du monde l'a suivi »</h3>
+<p><strong>Non vérifiable, et probablement exagéré.</strong> Le mouvement a touché un très grand nombre de communautés, d'Amsterdam au Yémen — <strong>cela est documenté</strong>. Le chiffre, lui, ne vient d'aucune source universitaire. <strong>Écarté.</strong></p>
+<h3>❌ « Les sabbatéens sont à l'origine du Nouvel Ordre Mondial »</h3>
+<p><strong>Écarté sans discussion.</strong> Source conspirationniste, sans document, sans archive, sans méthode. Le fait qu'un texte soit ancien ou qu'il cite des dates ne le rend pas historique.</p>
+<h3>⚠️ « Tous les musulmans attendent le Mahdi »</h3>
+<p><strong>Faux.</strong> Ibn Khaldoun, l'un des plus grands savants sunnites, niait le Mahdi comme figure distincte. Il y a, dans le sunnisme, une tradition savante de <strong>méfiance envers le Mahdi</strong>, parce qu'il perturbe l'autorité établie.</p>
+<h3>⚠️ « Breslev attend la venue du Messie par son fondateur »</h3>
+<p><strong>Mal cadré.</strong> Nahman n'a jamais revendiqué ce rôle. Le mouvement Breslev contemporain ne l'enseigne pas. <strong>Na Nach est une dévotion, pas une proclamation messianique.</strong></p>
+<hr>
+<h2>7. Ce qui reste indécidable</h2>
+<div class="tbl"><table><thead><tr><th>Question</th><th>Pourquoi</th></tr></thead><tbody><tr><td>Combien de loubavitch croient réellement que Schneerson est le Messie ?</td><td><strong>Aucune mesure.</strong> Le mouvement lui-même conteste, les observateurs contredisent</td></tr><tr><td>Combien de Dönme subsiste-t-il vraiment aujourd'hui ?</td><td>le chiffre de 25 000 vient d'une société savante, pas d'un recensement</td></tr><tr><td>Quand exactement le 12e imam est-il entré en occultation ?</td><td>873 ou 874 selon les sources ; 939, 940 ou 941 pour la fin de la mineure</td></tr><tr><td>Pourquoi les recruteurs de Daech n'ont-ils pas traité la perte de Dabiq ?</td><td>McCants le constate ; <strong>il ne l'explique pas</strong></td></tr></tbody></table></div>
+<hr>
+<h2>8. L'essentiel — affirmations et niveaux de confiance</h2>
+<div class="tbl"><table><thead><tr><th>Affirmation</th><th>Confiance</th><th>Pourquoi</th></tr></thead><tbody><tr><td>Sabbataï Tsevi s'est converti à l'islam en septembre 1666</td><td><strong>Élevée</strong></td><td>Britannica + Encyclopaedia Judaica ; seul le <strong>jour</strong> diverge</td></tr><tr><td>Nathan de Gaza a produit la doctrine de la « descente pour la montée »</td><td><strong>Élevée</strong></td><td>textes datés de 1666, unanimité des sources</td></tr><tr><td>Les Dönme descendent de convertis sabbatéens de 1683</td><td><strong>Élevée</strong></td><td>200-300 familles, sources concordantes</td></tr><tr><td>Le Mahdi sunnite naît à la fin des temps ; le chiite est né et occulté</td><td><strong>Élevée</strong></td><td>doctrine officielle des deux courants</td></tr><tr><td>Ibn Khaldoun niait un Mahdi distinct</td><td><strong>Élevée</strong></td><td><em>Muqaddima</em>, cité de façon convergente</td></tr><tr><td>Habad s'est scindé après 1994</td><td><strong>Élevée</strong></td><td>littérature académique abondante</td></tr><tr><td>La majorité des habad croient Schneerson Messie</td><td><strong>Indécidable</strong></td><td>la direction du mouvement le nie, les chercheurs le soutiennent</td></tr><tr><td>Nahman de Breslev s'est pris pour le Messie</td><td><strong>Rejetée</strong></td><td>il ne l'a jamais dit ; il a dit l'inverse</td></tr><tr><td>L'État islamique a perdu Dabiq en 2016 et sa prophétie a échoué</td><td><strong>Élevée</strong></td><td>dates publiques</td></tr><tr><td>« 1666 = 6+6+6 »</td><td><strong>Rejetée</strong></td><td>aucune source savante ; calcul kabbalistique à la place</td></tr></tbody></table></div>
+<hr>
+<h2>9. Ce que ça change pour votre projet</h2>
+<p>Cette note complète la première sur la gueoula, et <strong>elle en déplace le centre</strong> :</p>
+<blockquote>La première note disait : <em>les trois traditions interdisent de calculer la date.</em></blockquote>
+<blockquote>Celle-ci montre : <strong>quand quelqu'un calcule quand même, l'échec ne le fait pas taire.</strong></blockquote>
+<p><strong>Trois lignes rouges pour le bulletin, à ajouter aux trois premières :</strong></p>
+<ol><li><strong>Ne jamais présenter un échec comme une preuve suffisante.</strong> Il ne convainc presque personne</li></ol>
+<p>   à l'intérieur — il produit une réinterprétation.</p>
+<ol><li><strong>Toujours distinguer la direction d'un mouvement de ses marges.</strong> Habad nie</li></ol>
+<p>   officiellement ; certains de ses fidèles proclament. Les deux sont vrais.</p>
+<ol><li><strong>Ne pas confondre ferveur et proclamation.</strong> Breslev diffuse une joie ; ce n'est pas une</li></ol>
+<p>   candidature messianique.</p>
+<hr>
+<h2>10. Sources retenues</h2>
+<h3>Sources primaires et de référence</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Date</th></tr></thead><tbody><tr><td><strong>Encyclopaedia Judaica</strong>, art. « Shabbetai Ẓevi »</td><td>chronologie, date de conversion (15 sept.), <em>Derush ha-Tanninim</em></td><td>éd. continue</td></tr><tr><td><strong>Britannica</strong>, art. « Shabbetai Tzevi »</td><td>biographie, 16 sept., fonction de portier du palais</td><td>éd. continue</td></tr><tr><td><strong>Ibn Khaldoun</strong>, <em>Muqaddima</em></td><td>négation du Mahdi comme figure distincte</td><td>~1377</td></tr><tr><td><strong>Rambam</strong>, <em>Hilkhot Melakhim</em> 11-12 (note précédente)</td><td>les critères de vérification a posteriori</td><td>~1180</td></tr></tbody></table></div>
+<h3>Sources secondaires et académiques</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Date</th></tr></thead><tbody><tr><td><strong>William McCants</strong>, <em>The ISIS Apocalypse</em> (Brookings)</td><td>Dabiq, les deux échecs non traités, le Dajjal entre Syrie et Irak</td><td>2015</td></tr><tr><td><strong>McCants</strong>, entretiens PBS, Vox, Brookings, Slate</td><td>le raisonnement explicite, les citations</td><td>2015-2017</td></tr><tr><td><strong>David Berger</strong>, <em>The Rebbe, the Messiah, and the Scandal of Orthodox Indifference</em></td><td>la thèse du « scandale de l'indifférence »</td><td>2001</td></tr><tr><td><strong>Rachel Elior</strong></td><td>le lien entre Shoah et montée du messianisme habad</td><td>1998</td></tr><tr><td><strong>Paul R. Carlson</strong> / recherches sur le <em>Yechi</em></td><td>1991-1992, chants et déclarations</td><td>—</td></tr><tr><td><strong>Society for Crypto-Judaic Studies</strong>, « A Messianic Epiphany »</td><td>conversion de 1683, chiffre des Dönme, double identité</td><td>2018</td></tr><tr><td><strong>Sabrina Mervin</strong>, « Chiisme » (Orient XXI)</td><td>occultation, <em>ijtihad</em>, <em>taqlid</em></td><td>2023</td></tr><tr><td><strong>Le Monde diplomatique / Les clés du Moyen-Orient</strong></td><td>sunnisme/chiisme, rôle des oulémas</td><td>2013</td></tr></tbody></table></div>
+<h3>Écarté volontairement</h3>
+<ul><li><strong>« 1666 et les racines sabbatéennes du Nouvel Ordre Mondial »</strong> — texte conspirationniste,</li></ul>
+<p>  aucune archive, méthode nulle.</p>
+<ul><li><strong>« 1666 = 6+6+6 »</strong> — aucune source savante.</li><li><strong>« Plus de la moitié des Juifs du monde le suivait »</strong> — chiffre sans base universitaire.</li><li><strong>Les pages « faits pour enfants »</strong> (kiddle) — utiles pour une chronologie, écartées comme source.</li><li><strong>Les notices générées automatiquement</strong> (Grokipedia) — reprises sans vérification, écartées</li></ul>
+<p>  partout où une source académique existait.</p>
+<hr>
+<h2>11. Méthode</h2>
+<p>Question fermée d'abord : <em>que se passe-t-il quand une attente datée échoue ?</em> Recherche en français et en anglais. Chaque date avec sa source. Contradictions conservées (le 15/16 septembre, les 873/874, les 939/941 — et le désaccord sur les effectifs habad). Niveaux de confiance par affirmation. Sources écartées nommées avec la raison.</p>
+<p><strong>Spécificité de ce sujet :</strong> le danger n'est pas le manque de sources, c'est <strong>la surabondance de textes conspirationnistes</strong> sur 1666. Sur dix résultats de recherche, <strong>trois étaient inutilisables</strong> au premier regard. C'est le tri qui a pris le plus de temps.</p>
+<p class="piednote" style="margin-top:26px">Quand la date échoue, le mouvement ne meurt pas : il produit une théologie du sens caché. Motif observé trois fois, dans trois religions — et une limite : trois cas ne font pas une loi.</p>
+</section><section class="panneau" id="n-velo">
+<nav class="retour"><a href="#accueil" onclick="ouvrir('accueil');return false;">← Répertoire</a></nav>
+<p class="kicker">Note chiffrée · données vérifiées</p>
+<h1 class="titre-note">Le vélo en montagne</h1>
+<p class="sous">Le vélo est-il devenu un relais économique du ski dans les stations françaises ?</p>
+<p class="piednote"><span class="statut prete">✓ prête</span> publiée le 9 novembre 2026 · à revoir en mai 2027</p>
+<h1>Note de recherche — Le vélo en montagne</h1>
+<p><strong>Thème :</strong> le vélo dans les stations de montagne françaises <strong>Question posée :</strong> <em>le vélo est-il devenu un relais économique du ski dans les stations françaises ?</em> <strong>Date de la note :</strong> 09/11/2026 · <strong>à revoir :</strong> mai 2027 <strong>Périmètre :</strong> France, publications de 2024 à 2026, presse spécialisée et organismes professionnels</p>
+<hr>
+<h2>1. Le résultat de la recherche, en une phrase</h2>
+<blockquote>**Oui sur la fréquentation, non sur les revenus. La fréquentation vélo d'été est mesurée et progresse.</blockquote>
+<blockquote>Ce que la montagne y gagne, en revanche, aucun chiffre public ne permet de le dire — et les montants</blockquote>
+<blockquote>qui circulent additionnent quatre marchés différents.**</blockquote>
+<p>C'est le point le plus solide de cette note, et il est négatif : <strong>le chiffre le plus cité du sujet est faux.</strong></p>
+<hr>
+<h2>2. Quatre choses différentes, toutes appelées « le vélo en montagne »</h2>
+<p>C'est la première cause d'erreur. Quatre marchés coexistent, et <strong>aucune série ne les agrège.</strong></p>
+<div class="tbl"><table><thead><tr><th>Ce qui est mesuré</th><th>Qui le mesure</th><th>Ce que ça compte</th></tr></thead><tbody><tr><td><strong>Le marché du cycle neuf</strong></td><td>Union Sport &amp; Cycle — <em>Observatoire du Cycle</em></td><td>des vélos vendus, partout en France, y compris en ville</td></tr><tr><td><strong>Les passages VTT</strong></td><td>Domaines Skiables de France, réseaux de stations (N'Py, etc.)</td><td>des forfaits de remontée mécanique, en station, l'été</td></tr><tr><td><strong>La fréquentation touristique d'été</strong></td><td>ANMSM (maires de stations), INSEE</td><td>des nuitées et des taux d'occupation</td></tr><tr><td><strong>Le cyclotourisme itinérant</strong></td><td>Vélo &amp; Territoires</td><td>des séjours sur véloroutes, très rarement en montagne</td></tr></tbody></table></div>
+<p><strong>Conséquence pratique :</strong> tout titre du type « le vélo rapporte X à la montagne » est <strong>invérifiable tant qu'il ne dit pas laquelle de ces quatre choses il mesure</strong>. C'est le premier réflexe à avoir.</p>
+<hr>
+<h2>3. Ce qui est mesuré, daté et solide</h2>
+<h3>Le marché du vélo — <em>Observatoire du Cycle 2025</em>, publié le 24 avril 2026</h3>
+<div class="tbl"><table><thead><tr><th>Indicateur</th><th>Valeur 2025</th><th>Évolution</th></tr></thead><tbody><tr><td>Vélos neufs vendus</td><td><strong>1 836 710</strong></td><td>− 6,2 % (4ᵉ année de baisse)</td></tr><tr><td>Chiffre d'affaires vélos neufs</td><td><strong>1,861 Md€</strong></td><td>− 8,4 %</td></tr><tr><td><strong>VAE vendus</strong></td><td><strong>507 000</strong></td><td><strong>− 16 %</strong></td></tr><tr><td>Part du VAE</td><td><strong>28 % des volumes</strong>, <strong>54 % de la valeur</strong></td><td>—</td></tr><tr><td>Prix moyen</td><td>VAE ≈ 2 000 € · classique 638 €</td><td>—</td></tr><tr><td>Réparation</td><td>128 M€</td><td><strong>+ 10,5 %</strong></td></tr><tr><td>Seconde main</td><td>178 000 vélos</td><td>+ 13 à 14 %</td></tr><tr><td>Gravel</td><td>75 000</td><td><strong>+ 18 %</strong></td></tr></tbody></table></div>
+<p><strong>Lecture :</strong> le marché du neuf recule, <strong>l'usage ne recule pas.</strong> La réparation bondit de 10,5 %, la seconde main progresse : les gens roulent avec ce qu'ils ont déjà.</p>
+<h3>Les stations — été 2026</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Chiffre</th><th>Date</th></tr></thead><tbody><tr><td>Réseau <strong>N'Py</strong> (8 stations pyrénéennes)</td><td><strong>241 010 passages</strong> aux remontées, <strong>+ 3,9 %</strong> vs été 2025 (+ 8,4 % vs 2024)</td><td>sept. 2026</td></tr><tr><td>Réseau <strong>N'Py</strong> — bike parks</td><td><strong>13 538 passages</strong>, <strong>+ 20 %</strong> sur un an</td><td>sept. 2026</td></tr><tr><td><strong>ANMSM</strong> (stations françaises)</td><td>taux d'occupation estival <strong>65,8 %</strong> (+ 2,5 pts vs 2025)</td><td>août 2026</td></tr><tr><td><strong>Bike Park de Barèges</strong></td><td>≈ <strong>120 vététistes/jour</strong>, ≈ 670 descentes, <strong>≈ 1 accident/jour</strong>, croissance 10-15 %/an depuis 2019</td><td>août 2025</td></tr><tr><td><strong>Les Gets</strong></td><td>loisirs d'été = <strong>15 % du CA de la station</strong> ; ≈ 25 M€ de dépenses directes, ≈ 100 M€ avec hébergement et restauration</td><td>août 2025</td></tr><tr><td><strong>Morzine</strong></td><td>le VTT = <strong>83 % de l'activité économique de la vallée en été</strong> ; 25 remontées, ≈ 2 M de passages</td><td>août 2025</td></tr></tbody></table></div>
+<h3>L'investissement des domaines skiables — 2025, publié en mars 2026</h3>
+<div class="tbl"><table><thead><tr><th>Poste</th><th>Montant 2025</th></tr></thead><tbody><tr><td>Total investi</td><td><strong>555 M€</strong> (32 % du CA HT)</td></tr><tr><td>Remontées mécaniques neuves</td><td><strong>281 M€</strong></td></tr><tr><td>Maintenance et modifications</td><td>145,7 M€</td></tr><tr><td>Neige de culture</td><td>40,4 M€</td></tr><tr><td>Travaux de pistes</td><td>18,6 M€</td></tr><tr><td><strong>Équipements de loisirs et diversification</strong></td><td><strong>20,3 M€</strong></td></tr><tr><td>Fréquentation hiver 2024-2025</td><td>54,7 millions de journées skieurs</td></tr><tr><td>Dépenses touristiques hivernales</td><td>≈ 12 Md€ · ≈ 120 000 emplois</td></tr></tbody></table></div>
+<hr>
+<h2>4. Les chiffres qui circulent — et ce qu'ils valent vraiment</h2>
+<h3>⚠️ « Le VAE représente 58 % du chiffre d'affaires du marché du cycle, soit 1,86 Md€ en 2024 »</h3>
+<p><strong>Faux, sur deux points à la fois.</strong></p>
+<ul><li>L'Observatoire du Cycle donne <strong>54 %</strong> de la valeur des <strong>vélos neufs</strong> en <strong>2025</strong>, pas 58 %.</li><li><strong>1,861 Md€ est le chiffre d'affaires total des vélos neufs</strong>, pas celui du VAE. Le VAE en</li></ul>
+<p>  représente 54 %, soit environ 1 Md€.</p>
+<ul><li>Le taux de <strong>58 %</strong> n'apparaît dans <strong>aucune source primaire consultée</strong>.</li></ul>
+<p><strong>Origine probable :</strong> confusion entre « part de la valeur du marché du vélo neuf » et « chiffre d'affaires du VAE ». <strong>Chiffre écarté.</strong></p>
+<h3>« 83 % de l'activité économique » (Morzine) contre « 15 % du CA » (Les Gets)</h3>
+<p><strong>Ce n'est pas une contradiction.</strong> Les deux périmètres diffèrent :</p>
+<div class="tbl"><table><thead><tr><th></th><th>Morzine (83 %)</th><th>Les Gets (15 %)</th></tr></thead><tbody><tr><td>Ce qui est mesuré</td><td>part du VTT dans l'activité économique <strong>de la vallée, l'été</strong></td><td>part des loisirs d'été dans le <strong>CA annuel de la station</strong></td></tr><tr><td>Période de référence</td><td>la saison d'été</td><td>l'année entière</td></tr></tbody></table></div>
+<p><strong>83 % d'une saison d'été et 15 % d'une année complète peuvent être vrais en même temps.</strong> C'est exactement le genre de couple que la presse présente comme un désaccord.</p>
+<h3>« 109 M€ investis en diversification entre 2015 et 2024 (+ 148 %) » contre « 20,3 M€ en 2025 »</h3>
+<p><strong>Deux périodes différentes.</strong> 109 M€ est un <strong>cumul sur dix ans</strong>, 20,3 M€ une <strong>seule année</strong>. Les comparer donnerait un faux effondrement. Ne pas le faire.</p>
+<h3>« L'été 2026 est un record grâce au vélo »</h3>
+<p><strong>Attribution non démontrée.</strong> L'ANMSM elle-même attribue la hausse <strong>d'abord aux canicules</strong> et à la recherche de fraîcheur. Le VTT progresse (+ 20 % à N'Py), mais <strong>rien ne permet de dire qu'il porte la hausse globale de fréquentation.</strong> Corrélation n'est pas cause.</p>
+<h3>« Un bike park est rentabilisé en 3 à 5 ans, avec 20 à 30 % de marge »</h3>
+<p><strong>Écarté.</strong> Ce chiffre vient d'un site d'accompagnement à l'implantation touristique — donc d'un vendeur de projet — et <strong>aucune donnée comptable publique ne le corrobore.</strong></p>
+<hr>
+<h2>5. Ce qui manque — et c'est le cœur du sujet</h2>
+<p>La question que tout le monde pose vraiment est celle-ci :</p>
+<blockquote><strong>Le vélo compense-t-il la perte de neige ?</strong></blockquote>
+<p><strong>Aucune source publique consultée ne répond à cette question.</strong> Ce n'est pas un oubli : c'est structurel.</p>
+<ul><li>Les domaines skiables publient <strong>leurs investissements</strong>, pas leur <strong>marge par activité</strong>.</li><li>Les stations publient des <strong>taux d'occupation</strong>, pas la <strong>répartition du CA entre ski et vélo</strong>.</li><li>La Cour des comptes a publié en février 2024 un rapport sur les stations face au changement</li></ul>
+<p>  climatique, souvent cité sur ce sujet — <strong>je ne l'ai pas consulté directement</strong>, et je ne peux   donc pas affirmer qu'il chiffre la substitution.</p>
+<p><strong>Verdict : indécidable en l'état des données publiques.</strong> Quiconque affirme « le vélo remplace le ski » affirme quelque chose que personne n'a mesuré.</p>
+<hr>
+<h2>6. La donnée la plus parlante de tout le dossier</h2>
+<p>Regardez ces trois lignes, côte à côte :</p>
+<div class="tbl"><table><thead><tr><th>Poste d'investissement 2025</th><th>Montant</th></tr></thead><tbody><tr><td>Remontées mécaniques neuves</td><td><strong>281 M€</strong></td></tr><tr><td>Neige de culture</td><td><strong>40,4 M€</strong></td></tr><tr><td><strong>Loisirs et diversification (dont le vélo)</strong></td><td><strong>20,3 M€</strong></td></tr></tbody></table></div>
+<blockquote><strong>Le vélo est un relais de fréquentation, pas encore un relais d'investissement.</strong></blockquote>
+<blockquote>On investit quatorze fois plus dans les remontées que dans la diversification.</blockquote>
+<p>C'est la phrase qui résume le sujet, et elle tient sur un seul tableau.</p>
+<hr>
+<h2>7. Les tensions documentées</h2>
+<h3>La sécurité</h3>
+<p>Le Bike Park de Barèges enregistre <strong>environ un accident par jour</strong> (août 2025). Le responsable du site le relativise face au ski, mais reconnaît la hausse. <strong>Aucun bilan national des accidents VTT n'est publié</strong> : on a des données locales, pas une mesure du risque global.</p>
+<h3>Les conflits d'usage</h3>
+<p>Les communes réglementent par arrêté. Exemple daté : <strong>Mijoux (Ain), arrêté de mai 2025</strong> — les pistes de descente sont <strong>réservées au VTT et formellement interdites aux piétons</strong>, conformément à la norme <strong>NF/XP S52-110</strong>. Le port du casque y est obligatoire.</p>
+<p>Ce que ça dit : <strong>le vélo de descente s'est institutionnalisé.</strong> Il a ses normes, ses arrêtés, ses secours, sa signalisation. Ce n'est plus une pratique informelle.</p>
+<hr>
+<h2>8. L'essentiel — affirmations et niveaux de confiance</h2>
+<div class="tbl"><table><thead><tr><th>Affirmation</th><th>Confiance</th><th>Pourquoi</th></tr></thead><tbody><tr><td>Le marché du vélo neuf recule (4ᵉ année)</td><td><strong>Élevée</strong></td><td>Observatoire du Cycle, chiffres publiés, datés</td></tr><tr><td>Le VAE recule de 16 % en 2025</td><td><strong>Élevée</strong></td><td>même source, 507 000 unités</td></tr><tr><td>L'usage ne recule pas (réparation + 10,5 %)</td><td><strong>Élevée</strong></td><td>même source</td></tr><tr><td>La fréquentation VTT des remontées progresse</td><td><strong>Élevée</strong></td><td>N'Py : + 20 %, chiffres du réseau</td></tr><tr><td>Le VTT pèse lourd l'été dans certaines stations</td><td><strong>Moyenne</strong></td><td>Morzine 83 %, Les Gets 15 % — périmètres différents, presse</td></tr><tr><td>Le vélo compense la perte de neige</td><td><strong>Indécidable</strong></td><td>aucune donnée publique</td></tr><tr><td>Un bike park est rentable en 3-5 ans</td><td><strong>Rejetée</strong></td><td>source commerciale, non vérifiable</td></tr><tr><td>Le VAE = 58 % du CA du cycle</td><td><strong>Rejetée</strong></td><td>contredit l'Observatoire, 54 % en 2025</td></tr></tbody></table></div>
+<hr>
+<h2>9. Ce que ça change pour votre projet</h2>
+<p>Un thème chiffré comme celui-ci enseigne une chose que la gueoula n'enseignait pas :</p>
+<blockquote>**Le danger n'est pas le manque de chiffres. C'est l'abondance de chiffres qui ne mesurent</blockquote>
+<blockquote>pas la même chose.**</blockquote>
+<p>Trois lignes rouges pour un bulletin sur ce thème :</p>
+<ol><li><strong>Toujours nommer le marché</strong> : cycle neuf, passages VTT, nuitées, ou cyclotourisme.</li><li><strong>Jamais additionner une fréquentation et une recette.</strong> Ce sont deux unités.</li><li><strong>Ne jamais attribuer une hausse globale à une seule activité.</strong> La canicule explique</li></ol>
+<p>   l'été 2026 au moins autant que le vélo.</p>
+<hr>
+<h2>10. Sources retenues</h2>
+<h3>Sources primaires — organismes professionnels</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Date</th></tr></thead><tbody><tr><td><strong>Union Sport &amp; Cycle</strong>, <em>Observatoire du Cycle 2025</em></td><td>tous les chiffres du marché du vélo : volumes, valeur, VAE, réparation, seconde main</td><td>24/04/2026</td></tr><tr><td><strong>Domaines Skiables de France</strong> (via presse spécialisée)</td><td>investissements 2025 par poste, dont 20,3 M€ de diversification</td><td>09/03/2026</td></tr><tr><td><strong>ANMSM</strong>, Association nationale des maires de stations</td><td>taux d'occupation estival 65,8 %</td><td>28/08/2026</td></tr><tr><td><strong>Réseau N'Py</strong></td><td>passages été 2026 : 241 010 (+ 3,9 %), bike parks + 20 %</td><td>04 et 07/09/2026</td></tr><tr><td><strong>Arrêté municipal de Mijoux</strong> (Ain)</td><td>cadre juridique des pistes de descente, norme NF/XP S52-110</td><td>15/05/2025</td></tr></tbody></table></div>
+<h3>Sources secondaires — presse et analyses</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Date</th></tr></thead><tbody><tr><td><strong>Le JDD</strong></td><td>Morzine : 83 % de l'activité économique d'été, 25 remontées</td><td>10/08/2025</td></tr><tr><td><strong>Sport Business Club</strong></td><td>Les Gets : 15 % du CA de la station, 25 M€ directs</td><td>29/08/2025</td></tr><tr><td><strong>ICI</strong> (ex-France Bleu)</td><td>Barèges : fréquentation, accidents, croissance 10-15 %/an</td><td>02/08/2025</td></tr><tr><td><strong>Sport Strategies</strong></td><td>lecture critique : « l'investissement record masque les fragilités »</td><td>09/03/2026</td></tr><tr><td><strong>Vélo &amp; Territoires</strong></td><td>cyclotourisme : 68 €/jour contre 55 € pour un touriste en voiture</td><td>2024</td></tr></tbody></table></div>
+<h3>Écarté volontairement</h3>
+<ul><li><strong>Le chiffre « 58 % du CA du cycle »</strong> — contredit par l'Observatoire, introuvable en source primaire.</li><li><strong>Les ROI de bike park (3-5 ans, 20-30 % de marge)</strong> — site commercial, aucune donnée comptable.</li><li><strong>« Le VAE, locomotive n°1 du tourisme estival »</strong> — affirmation d'un site de conseil, non mesurée.</li><li><strong>Les classements de stations</strong> (« top 8 des meilleurs bike parks ») — promotionnels, aucun apport factuel.</li><li><strong>Le chiffre « 800 000 vélos produits en France en 2025 »</strong> — contredit par l'USC (512 190).</li></ul>
+<p>  Un site affirme aussi « plus d'un million de VAE vendus » quand l'Observatoire en compte 507 000.</p>
+<hr>
+<h2>11. Méthode</h2>
+<p>La même que pour les autres notes : question fermée d'abord, recherche en français et en anglais, chaque chiffre avec sa définition, sa source et sa date, contradictions exposées, niveaux de confiance, sources écartées nommées, date de révision.</p>
+<p><strong>Une spécificité de ce sujet :</strong> c'est le premier où <strong>le travail principal a été de réfuter</strong> plutôt que de collecter. Sur six chiffres très cités, <strong>deux sont faux, un est mal daté, un est un argument de vente, et un est une attribution abusive.</strong> C'est le résultat le plus utile de la recherche.</p>
+<p class="piednote" style="margin-top:26px">Quatre chiffres très cités se sont révélés faux, mal datés ou invérifiables. Le travail principal a été de les réfuter.</p>
+</section><section class="panneau" id="n-gueoula">
+<nav class="retour"><a href="#accueil" onclick="ouvrir('accueil');return false;">← Répertoire</a></nav>
+<p class="kicker">Note documentée · textes primaires</p>
+<h1 class="titre-note">La gueoula et la venue du Messie</h1>
+<p class="sous">Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</p>
+<p class="piednote"><span class="statut prete">✓ prête</span> publiée le 8 novembre 2026 · à revoir en août 2027</p>
+<h1>Note de recherche — La Gueoula et l'attente du Messie</h1>
+<p><strong>Thème :</strong> la <em>gueoula</em> (גאולה) — la rédemption — et l'attente messianique <strong>Question posée :</strong> <em>qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</em> <strong>Date de la note :</strong> 08/11/2026 · <strong>à revoir :</strong> août 2027 <strong>Périmètre :</strong> sources textuelles juives, chrétiennes et musulmanes + littérature en sciences sociales</p>
+<blockquote><strong>Avertissement de méthode.</strong> Cette note ne tranche pas une question de foi. Elle établit</blockquote>
+<blockquote>ce que les textes disent, comment les courants les interprètent, et ce que les sciences</blockquote>
+<blockquote>sociales ont observé des mouvements messianiques. La distinction entre « ce qui est</blockquote>
+<blockquote>documenté » et « ce qui est cru » est maintenue partout.</blockquote>
+<hr>
+<h2>1. Le résultat, en une phrase</h2>
+<blockquote>**« Gueoula » est un mot hébreu qui signifie « rédemption ». Ce n'est pas un événement</blockquote>
+<blockquote>datable, mais un concept : le retour d'une situation à son état juste. Les trois grandes</blockquote>
+<blockquote>traditions abrahamiques l'attendent, mais elles divergent sur <em>qui</em> vient, <em>quand</em> et</blockquote>
+<blockquote><em>comment</em> — et toutes, chacune à sa manière, découragent le calcul de la date.**</blockquote>
+<p>C'est le point le plus solide de toute cette recherche, et le plus contre-intuitif : <strong>les traditions qui attendent le Messie sont aussi celles qui interdisent d'en calculer l'arrivée.</strong></p>
+<hr>
+<h2>2. Le mot avant l'attente : ce que « gueoula » veut dire</h2>
+<p>Le terme vient de la racine hébraïque **גאל (<em>ga'al</em>)<strong> : racheter, réclamer, restaurer dans son droit. Le participe </strong><em>go'el</em> (גואל)<strong> désigne le « rédempteur parent » — celui qui, dans le livre de Ruth, rachète la terre et la lignée d'une veuve. </strong>La rédemption, dans son sens d'origine, est un acte juridique et familial, pas un événement cosmique.**</p>
+<div class="tbl"><table><thead><tr><th>Aspect</th><th><em>Geoula</em> (גאולה)</th><th><em>Pidyon</em> (פדיון)</th></tr></thead><tbody><tr><td>Sens</td><td>rédemption-restauration</td><td>rachat-libération</td></tr><tr><td>Logique</td><td>on <strong>restaure</strong> ce qui était à soi</td><td>on <strong>retire</strong> d'une situation mauvaise</td></tr><tr><td>Portée</td><td>collective, nationale</td><td>souvent individuelle</td></tr><tr><td>Selon le Hatam Sofer (1762-1839)</td><td>rédemption « positive » : on s'élève au-dessus de sa condition</td><td>rédemption « négative » : on est simplement sauvé du malheur</td></tr><tr><td>Selon le Malbim (1809-1879)</td><td>naît de la <strong>proximité</strong> entre le rédempteur et le racheté</td><td>constate le fait du salut</td></tr></tbody></table></div>
+<p>Orthographe : <em>geulah</em>, <em>geoula</em>, <em>gueoula</em>, <em>ge'oula</em> sont la même chose — la translittération française du même mot. En anglais : <em>geulah</em>.</p>
+<p><strong>Ce que ce mot n'est pas :</strong> il ne signifie pas « fin du monde », ni « jugement dernier », ni « apocalypse ». Ces notions existent dans les mêmes corpus, mais ce sont des concepts distincts. Confondre <em>geoula</em> et fin des temps est l'erreur la plus fréquente.</p>
+<hr>
+<h2>3. Trois attentes, trois structures</h2>
+<p>Le mot « messie » vient de l'hébreu <em><strong>mashia'h</strong></em> (משיח, « oint »), traduit en grec par <em>Christos</em>. Les trois traditions utilisent donc des mots apparentés — mais elles n'attendent pas la même chose, et surtout pas au même moment du temps.</p>
+<div class="tbl"><table><thead><tr><th></th><th><strong>Judaïsme</strong></th><th><strong>Christianisme</strong></th><th><strong>Islam</strong></th></tr></thead><tbody><tr><td><strong>Statut</strong></td><td>à venir</td><td>déjà venu, retour attendu</td><td>à venir</td></tr><tr><td><strong>Figure</strong></td><td><em>Mashia'h</em>, descendant de David</td><td>Jésus, reconnu comme Messie</td><td>le Mahdi (et le retour de Îsâ/Jésus)</td></tr><tr><td><strong>Rôle</strong></td><td>rétablir la royauté de David, rebâtir le Temple, rassembler les exilés</td><td>sauver du péché, puis juger à son retour</td><td>rétablir la justice avant la fin</td></tr><tr><td><strong>Nature de l'ère</strong></td><td><strong>ce monde-ci</strong>, restauré</td><td>monde présent puis monde à venir</td><td>période précédant la Résurrection</td></tr><tr><td><strong>Miracles nécessaires ?</strong></td><td><strong>non</strong> (Rambam, <em>Melakhim</em> 11:3)</td><td>oui, dans la lecture chrétienne</td><td>signes, oui</td></tr><tr><td><strong>Calcul de la date</strong></td><td><strong>proscrit</strong> (Sanhedrin 97b)</td><td><strong>proscrit</strong> (Mt 24:36)</td><td>réservé à Dieu seul</td></tr></tbody></table></div>
+<h3>Détail juif : les deux voies</h3>
+<p>Le Talmud (<em>Sanhedrin</em> 98a) enseigne que la rédemption peut venir de deux façons, à partir du verset d'Isaïe 60:22 — « <em>be'ito</em> » (« en son temps ») ou « <em>achishena</em> » (« je l'activerai ») :</p>
+<ul><li><em><strong>be'ito</strong></em> : au terme fixé, quoi qu'il arrive ;</li><li><em><strong>achishena</strong></em> : plus tôt, si le peuple revient vers Dieu.</li></ul>
+<p>Autrement dit : <strong>la date n'est pas une donnée, c'est une variable dépendant du comportement humain.</strong> Cette structure explique pourquoi, dans ce cadre, calculer n'a pas de sens — on ne peut pas calculer ce qui dépend de ce qu'on fait.</p>
+<h3>Détail juif : les critères du Rambam</h3>
+<p>Maïmonide (<em>Mishné Torah</em>, <em>Hilkhot Melakhim</em>, ch. 11) fixe une procédure en deux temps — c'est le passage le plus cité, et le plus mal lu :</p>
+<p>**① On « présume » (<em>chezkat mashia'h</em>)** qu'un homme est le Messie s'il remplit trois conditions : descendant de David, versé dans la Torah et les commandements comme David, capable d'entraîner tout Israël et de « réparer les brèches », et s'il combat les guerres de Dieu.</p>
+<p>**② On le « sait avec certitude » (<em>vadaï</em>)** seulement s'il réussit : victoire sur les ennemis alentour, reconstruction du Temple à sa place, rassemblement des exilés.</p>
+<p>Et le Rambam ajoute, ce qui est décisif :</p>
+<blockquote>« **S'il n'a pas réussi jusqu'ici, ou s'il a été tué, il est établi qu'il n'est pas celui que</blockquote>
+<blockquote>la Torah a promis.** Il est comme tous les rois légitimes de la maison de David qui sont morts. »</blockquote>
+<p>Puis, au chapitre 12 : « <strong>le monde suivra son cours habituel</strong> » (<em>olam ke-minhago noheg</em>) — c'est-à-dire que l'ère messianique n'implique pas de bouleversement des lois de la nature. Et enfin : « <strong>Tous les termes calculés sont passés ; la chose ne dépend plus que du retour vers Dieu et des bonnes actions.</strong> »</p>
+<p><strong>Ce que cela signifie pour votre thème :</strong> dans la lecture maïmonidienne, l'attente est <strong>vérifiable a posteriori, jamais a priori</strong>. On ne reconnaît pas le Messie à des signes annoncés ; on constate, après coup, qu'un candidat a accompli ou non l'ensemble. Le critère est le résultat, pas l'annonce.</p>
+<hr>
+<h2>4. L'interdiction de calculer : ce que disent précisément les textes</h2>
+<p>C'est le point où les trois traditions se rejoignent le plus nettement, et c'est vérifiable mot pour mot.</p>
+<h3>Talmud de Babylone, <em>Sanhedrin</em> 97b</h3>
+<blockquote>« Rabbi Chmouel bar Na'hmani dit au nom de Rabbi Yonatan : **Que pourrissent les os de ceux</blockquote>
+<blockquote>qui calculent la fin !** Car ils diront : puisque le terme calculé est arrivé et que le Messie</blockquote>
+<blockquote>n'est pas venu, il ne viendra plus du tout. »</blockquote>
+<p>La suite du passage est encore plus intéressante : la raison de l'interdit n'est pas l'orgueil, mais <strong>la conséquence psychologique</strong>. Le calcul produit des déçus, et les déçus cessent d'attendre. Le Talmud ajoute : « Tous les termes calculés sont passés, et la chose ne dépend que du retour et des bonnes actions » ; et ailleurs, il rapporte que Rabbi Zeira, voyant des sages discuter des calculs de la fin, leur disait : « Je vous en prie, ne retardez pas sa venue. »</p>
+<h3>Habacuc 2:3, cité dans le même passage</h3>
+<blockquote>« Si elle tarde, attends-la, car elle viendra sûrement, elle ne sera pas en retard. »</blockquote>
+<p>C'est la formule que le Talmud place au cœur de l'attitude correcte : <strong>attendre sans calculer.</strong></p>
+<h3>Nouveau Testament, Matthieu 24:36</h3>
+<blockquote>« Quant à ce jour et à cette heure, nul ne les connaît — pas même les anges du ciel, ni le Fils,</blockquote>
+<blockquote>mais le Père seul. »</blockquote>
+<p>Même structure : un événement attendu, une date soustraite à toute connaissance humaine.</p>
+<h3>Islam</h3>
+<p>La tradition islamique réserve de même la connaissance de l'Heure à Dieu. Le Coran affirme que la connaissance de l'heure est auprès de Dieu seul (sourate 7, verset 187) — <em>repère à vérifier dans une édition de référence, la numérotation variant selon les éditions.</em></p>
+<hr>
+<h2>5. Le cas le plus instructif : « When Prophecy Fails » — et sa contestation</h2>
+<p>C'est l'expérience la plus citée en sciences sociales sur ce sujet, et elle vient d'être sérieusement contestée. C'est exactement le genre de nuance qu'on ne trouve pas dans un moteur de recherche.</p>
+<h3>Ce qu'on lit partout</h3>
+<p>En 1956, <strong>Leon Festinger</strong>, Henry Riecken et Stanley Schachter publient <em>When Prophecy Fails</em> : une petite secte de Chicago avait annoncé un cataclysme pour une date précise. La date passa. Loin de se disperser, les membres les plus engagés <strong>redoublèrent de zèle et se mirent à recruter</strong>. Festinger en tire sa théorie de la <strong>dissonance cognitive</strong> : quand les faits contredisent une croyance coûteuse, on change non pas la croyance mais son environnement — en convainquant d'autres, on rend la croyance plus « vraie ».</p>
+<p>Depuis, l'épisode sert à expliquer <strong>tous</strong> les échecs de prophéties : sabbatéisme, millérisme, montanisme, et les mouvements contemporains.</p>
+<h3>Ce que la recherche récente montre</h3>
+<p>En 2025, <strong>Thomas Kelly</strong> a publié une enquête dans le <em>Journal of the History of the Behavioral Sciences</em> : les chercheurs auraient <strong>fabriqué de faux messages « psychiques » d'extraterrestres pour influencer le comportement du groupe</strong>, notamment la nuit où la prophétie a échoué. Selon cette lecture, Festinger et ses collègues ont <strong>scénarisé</strong> la réalité pour confirmer leur théorie — au détriment de l'observation.</p>
+<p>Un point de méthode qui compte : <strong>la théorie de la dissonance cognitive ne repose pas que sur cette étude</strong>, et reste un outil valide. C'est <strong>le récit fondateur</strong> qui est fragile, pas nécessairement le mécanisme.</p>
+<h3>Et pourtant, le mécanisme se constate ailleurs</h3>
+<p>D'autres mouvements documentés indépendamment présentent le même schéma : après l'échec, une minorité abandonne, et un noyau <strong>réinterprète la prophétie</strong> (la date était symbolique, l'événement a eu lieu « dans le ciel », le calendrier est mauvais) et redouble d'efforts. C'est ce que l'on observe dans l'histoire du sabbatéisme après l'apostasie de Sabbataï Tsevi en 1666, et chez les millérites après 1844.</p>
+<p><strong>Le constat solide, indépendant de la controverse Festinger :</strong> dans tous les cas documentés, <strong>une prophétie datée a produit, après son échec, soit une réinterprétation, soit un réengagement — rarement un abandon pur et simple.</strong></p>
+<hr>
+<h2>6. Ce sur quoi les sources convergent (confiance élevée)</h2>
+<h3>① Le mot est central, pas marginal</h3>
+<p><em>Geoula</em> structure la liturgie juive quotidienne (la bénédiction <em>Gueoula</em> après le <em>Chéma</em>), le cycle des fêtes, et le vocabulaire politique israélien contemporain. Ce n'est pas une curiosité d'illuminés : c'est un pilier théologique.</p>
+<h3>② Les trois traditions interdisent de calculer la date</h3>
+<p>Sanhedrin 97b, Matthieu 24:36, sourate 7:187 : trois corpus indépendants, trois formulations différentes, même conclusion. C'est la convergence la plus nette de cette recherche.</p>
+<h3>③ Tous les mouvements datés ont échoué — et ont été réinterprétés</h3>
+<p>Bar Kokhba (135), Sabbataï Tsevi (1666), les millérites (1844), et les annonces plus récentes. Aucune date n'a tenu. Chaque fois, le noyau a réinterprété plutôt qu'abandonné.</p>
+<h3>④ La distinction entre ère messianique et fin des temps est constante</h3>
+<p>Le Rambam est explicite : chapitre 11 traite du Messie roi, chapitre 12 du monde à venir, et il refuse de mêler les deux. La confusion <em>gueoula</em> / fin du monde est un raccourci populaire, pas une donnée doctrinale.</p>
+<h3>⑤ L'attente messianique produit des effets historiques réels</h3>
+<p>Indépendamment de la vérité des croyances : le sabbatéisme a bouleversé le monde juif du XVIIe siècle, le millérisme a donné naissance à l'adventisme, le mahdisme a structuré des mouvements politiques au Soudan et en Iran. <strong>Ce sont des faits historiques observables.</strong></p>
+<hr>
+<h2>7. Ce qui reste indécidable — et pourquoi</h2>
+<div class="tbl"><table><thead><tr><th>Question</th><th>Statut</th></tr></thead><tbody><tr><td>Une figure messianique viendra-t-elle ?</td><td><strong>Indécidable par la recherche.</strong> Relève de la foi, pas de la preuve.</td></tr><tr><td>Peut-on dater cet événement ?</td><td><strong>Non</strong> — et les trois traditions l'excluent explicitement.</td></tr><tr><td>Une personne précise est-elle le Messie ?</td><td><strong>Non évaluable a priori</strong>, y compris dans le cadre du Rambam (critère de réussite a posteriori).</td></tr><tr><td>Quelle tradition a raison ?</td><td><strong>Aucune méthode scientifique ne peut trancher.</strong> Les corpus ne sont pas falsifiables.</td></tr><tr><td>Les mouvements messianiques se comportent-ils tous de la même façon ?</td><td><strong>Partiellement vrai</strong> — le mécanisme est documenté, mais ses causes ne sont pas réductibles à la seule dissonance cognitive.</td></tr></tbody></table></div>
+<p><strong>Il n'y a pas de « réponse cachée » que la recherche aurait manquée.</strong> C'est une question de nature différente de celle des agents IA : il n'existe pas de données extérieures aux textes pour l'arbitrer. Prétendre le contraire — dans un sens ou dans l'autre — serait tromper le lecteur.</p>
+<hr>
+<h2>8. L'essentiel — affirmations et niveaux de confiance</h2>
+<div class="tbl"><table><thead><tr><th>Affirmation</th><th>Confiance</th></tr></thead><tbody><tr><td>« Gueoula » signifie « rédemption », non « fin du monde »</td><td><strong>Très élevée</strong> — étymologie et usage liturgique constants</td></tr><tr><td>Les trois traditions interdisent de calculer la date</td><td><strong>Très élevée</strong> — trois textes explicites, vérifiables</td></tr><tr><td>Le Rambam établit des critères de vérification <em>a posteriori</em></td><td><strong>Très élevée</strong> — texte disponible, traduction française courante</td></tr><tr><td>Toutes les prophéties datées ont échoué et ont été réinterprétées</td><td><strong>Élevée</strong> — cas historiques bien documentés</td></tr><tr><td>La dissonance cognitive explique ces réinterprétations</td><td><strong>Moyenne</strong> — mécanisme réel, mais l'étude fondatrice (1956) est contestée depuis 2025</td></tr><tr><td>Les traditions convergent parce qu'elles s'influencent mutuellement</td><td><strong>Moyenne</strong> — plausible pour l'islam et le christianisme, moins pour le Talmud (antérieur)</td></tr><tr><td>Une date peut être déduite des textes</td><td><strong>Très faible</strong> — aucun calcul n'a jamais abouti, et tous les corpus l'excluent</td></tr></tbody></table></div>
+<hr>
+<h2>9. Ce que ça change concrètement pour votre projet</h2>
+<p>Puisque votre dépôt s'appelle <strong><code>geoula-bulletin</code></strong> et que votre site est un bulletin : le nom que vous avez choisi désigne <strong>la rédemption</strong>, pas une actualité. Ça oriente tout.</p>
+<h3>La ligne éditoriale qui découle de cette recherche</h3>
+<div class="tbl"><table><thead><tr><th>À faire</th><th>Pourquoi</th></tr></thead><tbody><tr><td><strong>Traiter le thème comme une étude de textes et d'histoires</strong>, pas comme une annonce</td><td>c'est ce que la recherche permet, et c'est ce qui différencie votre bulletin</td></tr><tr><td><strong>Toujours nommer la tradition</strong> dont on parle (juive / chrétienne / musulmane)</td><td>leurs attentes sont structurellement différentes ; les confondre est la faute la plus courante</td></tr><tr><td><strong>Signaler les réinterprétations</strong> quand une date passe</td><td>c'est l'observation la plus solide des sciences sociales</td></tr><tr><td>**Distinguer <em>geoula</em> et fin des temps**</td><td>c'est l'erreur de vocabulaire la plus fréquente du sujet</td></tr></tbody></table></div>
+<h3>Les trois lignes rouges</h3>
+<ol><li><strong>Ne jamais publier de date</strong> — ni la reprendre, ni la commenter comme probable.</li></ol>
+<p>   Les trois traditions l'interdisent, et 100 % des cas documentés ont échoué.</p>
+<ol><li><strong>Ne jamais désigner une personne vivante comme le Messie</strong> — ni pour l'affirmer ni pour</li></ol>
+<p>   le suggérer. C'est le point où un bulletin bascule de l'étude vers la polémique.</p>
+<ol><li><strong>Ne pas fusionner les trois attentes</strong> — un lecteur musulman, un lecteur juif et un lecteur</li></ol>
+<p>   chrétien n'attendent pas la même chose au même moment du temps.</p>
+<h3>Trois formats possibles pour le bulletin</h3>
+<div class="tbl"><table><thead><tr><th>Format</th><th>Contenu</th><th>Fréquence réaliste</th></tr></thead><tbody><tr><td><strong>Fiche de source</strong></td><td>un texte, sa traduction, ce qu'il dit vraiment, ce qu'on lui fait dire à tort</td><td>mensuel</td></tr><tr><td><strong>Cas historique</strong></td><td>un mouvement messianique daté : ce qu'il annonçait, ce qui s'est passé, comment il a réinterprété</td><td>mensuel</td></tr><tr><td><strong>Note de veille</strong></td><td>ce qui a été publié récemment sur le thème, avec les niveaux de confiance</td><td>trimestriel</td></tr></tbody></table></div>
+<hr>
+<h2>10. Sources retenues</h2>
+<h3>Sources primaires — textes</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Datation</th></tr></thead><tbody><tr><td>**Talmud de Babylone, <em>Sanhedrin</em> 97a-98b**</td><td>l'interdit du calcul de la fin (<em>tipa'h</em>) ; les deux voies <em>be'ito</em> / <em>achishena</em> ; « tous les termes calculés sont passés »</td><td>~Ve siècle</td></tr><tr><td><strong>Isaïe 60:22 ; Habacuc 2:3</strong></td><td>les versets sur lesquels repose toute la discussion</td><td>—</td></tr><tr><td>**Maïmonide (Rambam), <em>Mishné Torah</em>, <em>Hilkhot Melakhim</em> ch. 11-12**</td><td>critères de <em>chezkat mashia'h</em> et de <em>vadaï</em> ; « pas besoin de miracles » ; « le monde suit son cours »</td><td>~1180</td></tr><tr><td><strong>Matthieu 24:36</strong></td><td>« nul ne connaît le jour ni l'heure »</td><td>Ier siècle</td></tr><tr><td><strong>Coran 7:187</strong></td><td>la connaissance de l'Heure réservée à Dieu</td><td>VIIe siècle</td></tr></tbody></table></div>
+<h3>Sources secondaires — recherche et référence</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Date</th></tr></thead><tbody><tr><td><strong>Ohr Somayach</strong> (<em>Ohrnet</em>, dossier Tisha b'Av)</td><td>synthèse pédagogique sur <em>be'ito</em> / <em>achishena</em>, citations du Maharam Schick</td><td>2023</td></tr><tr><td><strong>Chabad.org</strong>, traduction commentée de <em>Hilkhot Melakhim</em></td><td>texte du Rambam avec notes ; mention du passage supprimé par la censure chrétienne</td><td>éd. continue</td></tr><tr><td><strong>Ohr Somayach</strong>, « Words of Redemption »</td><td>distinction <em>geoula</em> / <em>pidyon</em> (Hatam Sofer, Malbim, Rabbi Stern)</td><td>2018</td></tr><tr><td><strong>Le Grand Continent</strong>, « Comment peut-on être chiite ? »</td><td>eschatologie duodécimaine, occultation de 874, rôle de l'Imam attendu</td><td>mars 2026</td></tr><tr><td><strong>Les Cahiers de l'Islam</strong>, « Déconstruction du messianisme en islam »</td><td>différence sunnite / chiite sur le Mahdi ; le Mahdi sunnite naît à la fin des temps, il n'est pas occulté</td><td>2018</td></tr><tr><td><strong>AFIS</strong>, « L'échec d'une prophétie : la démystification du récit »</td><td>synthèse de l'enquête de Thomas Kelly (2025) contestant <em>When Prophecy Fails</em></td><td>août 2026</td></tr><tr><td>**Wikipedia (EN), *When Prophecy Fails***</td><td>les cinq conditions de Festinger, et les critiques de méthode (Van Fossen 1988)</td><td>éd. continue</td></tr></tbody></table></div>
+<h3>Écarté volontairement</h3>
+<ul><li><strong>Sites de calcul de dates</strong> (guématries, « prophéties » 2024-2026, comptes sur les réseaux) :</li></ul>
+<p>  aucune base textuelle vérifiable, et l'objet même est proscrit par les corpus qu'ils invoquent.</p>
+<ul><li><strong>Polémiques interreligieuses</strong> : les contenus visant à démontrer la fausseté de la croyance</li></ul>
+<p>  de l'autre ont été écartés — ils ne documentent pas le sujet, ils le prennent en otage.</p>
+<ul><li><strong>Vidéos et articles sensationnalistes</strong> sur le Mahdi ou le Messie : non retenus, aucun apport factuel.</li><li><strong>Sources non datées</strong> sur l'occultation : plusieurs articles donnent des dates différentes</li></ul>
+<p>  (873/874) ; la date de 874 est retenue ici comme la plus couramment admise.</p>
+<hr>
+<h2>11. Méthode</h2>
+<div class="tbl"><table><thead><tr><th>Étape</th><th>Ce qui a été fait</th></tr></thead><tbody><tr><td>Question</td><td>Une seule, formulée avant la recherche : <em>qu'est-ce que ce mot désigne, et que peut-on en dire de vérifiable ?</em></td></tr><tr><td>Recherche</td><td>5 formulations, français, anglais et translittérations hébraïques (geulah / geoula / gueoula)</td></tr><tr><td>Extraction</td><td>Chaque affirmation rattachée à un texte précis, avec sa datation</td></tr><tr><td>Réconciliation</td><td>Les divergences de dates/translittérations signalées plutôt que lissées</td></tr><tr><td>Tri</td><td>Ce que les textes disent / ce que les courants en font / ce que les sciences sociales observent</td></tr><tr><td>Tri complémentaire</td><td><strong>Documenté / cru / indécidable</strong> — trois catégories jamais mélangées</td></tr><tr><td>Contradiction assumée</td><td>La contestation de Festinger (2025) est présentée, pas cachée</td></tr><tr><td>Révision</td><td>Date fixée : août 2027</td></tr></tbody></table></div>
+<p><strong>Les trois règles de cette note :</strong> aucune affirmation sans sa source textuelle · aucune confusion entre fait documenté et contenu de foi · aucune conclusion tirée à la place du lecteur sur une question qui relève de sa conviction.</p>
+<p class="piednote" style="margin-top:26px">Le mot veut dire rédemption, pas fin du monde — et les trois traditions interdisent chacune le calcul de la date.</p>
+</section>
 
   <footer>
-    <strong>Cette page est votre point de repère.</strong> Si un doute revient, ouvrez-la&nbsp;: elle indique toujours l'étape en cours et l'action suivante.<br>
-    Besoin d'aide pour construire&nbsp;? <a href="atelier.html" style="color:#5eead4">Ouvrir l'Atelier</a> — l'assistant intégré qui explique quoi faire, clic par clic.<br>
-    Dernière vérification&nbsp;: <span id="generated">—</span>
+    Chaque note suit la même méthode : une question fermée posée d'abord, chaque chiffre et chaque
+    affirmation rattachés à une source datée, les contradictions exposées, un niveau de confiance
+    par affirmation, les sources écartées nommées, et une date de révision.<br>
+    <b>Rien n'est publié sans sa date.</b> 3 notes au répertoire.
   </footer>
 </div>
 
+<div class="voile" id="voile" onclick="if(event.target===this)fermerNR()">
+  <div class="boite">
+    <h3>Nouvelle recherche</h3>
+    <p class="aide">Écrivez le thème et la question. <strong>La note est rédigée sur commande</strong> —
+    ce bouton prépare la demande et la garde sous la main.</p>
+
+    <label for="nrTheme">Thème</label>
+    <input id="nrTheme" type="text" placeholder="ex. la dette publique française">
+
+    <label for="nrQuestion">Question — fermée de préférence</label>
+    <textarea id="nrQuestion" placeholder="ex. combien la charge d'intérêts a-t-elle augmenté depuis 2020 ?"></textarea>
+    <p class="champs">Une question qui commence par <em>combien</em>, <em>est-ce que</em>, <em>pourquoi</em>
+    vaut mieux que « parle-moi de… ».</p>
+
+    <div class="pied-boite">
+      <button onclick="lancerNR()">Ouvrir Google News</button>
+      <button class="ok" onclick="garderNR()">Copier la commande</button>
+      <button onclick="fermerNR()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // L'état technique est lu depuis etat.json (généré par scripts/etat.sh).
-  // Si le fichier est absent (ou page ouverte en local sans serveur), les valeurs par défaut restent affichées.
-  (function () {
-    var $ = function (id) { return document.getElementById(id); };
+var IDS = ["accueil", "messianismes", "velo", "gueoula"];
 
-    var pct = Math.round((3 / 6) * 100);
-    $('progress-bar').style.width = pct + '%';
-    $('progress-label').textContent = '3 / 6 étapes';
+function ouvrir(q) {
+  for (var i = 0; i < IDS.length; i++) {
+    var p = document.getElementById('n-' + IDS[i]);
+    if (p) p.classList.toggle('vu', IDS[i] === q);
+  }
+  try { localStorage.setItem('vue', q); } catch (e) {}
+  window.scrollTo(0, 0);
+  if (location.hash !== '#' + q) { try { history.replaceState(null, '', '#' + q); } catch (e) {} }
+}
 
-    function fmtDate(iso) {
-      if (!iso) return null;
-      var d = new Date(iso);
-      if (isNaN(d)) return null;
-      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
+window.addEventListener('scroll', function () {
+  var d = document.documentElement, max = d.scrollHeight - d.clientHeight;
+  document.getElementById('lecture').style.width = (max > 0 ? d.scrollTop / max * 100 : 0) + '%';
+});
 
-    fetch('etat.json', { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('absent'); return r.json(); })
-      .then(function (e) {
-        if (e.branch) $('g-branch').textContent = e.branch;
-        if (e.short_sha) {
-          $('g-commit').textContent = e.short_sha + ' · ' + (e.last_commit_message || '');
-          $('g-commit').title = e.last_commit_message || '';
-        }
-        if (typeof e.tracked_files === 'number') {
-          $('g-files').innerHTML = e.tracked_files + ' <small>fichier' + (e.tracked_files > 1 ? 's' : '') + '</small>';
-        }
-        var when = fmtDate(e.generated_at) || fmtDate(e.last_commit_date);
-        if (when) $('generated').textContent = when + (e.commit_date ? '' : '');
-        $('freshness').textContent = 'état vérifié';
-      })
-      .catch(function () {
-        $('freshness').textContent = 'état : valeurs par défaut';
-      });
-  })();
+/* ---------- nouvelle recherche ---------- */
+function ouvrirNR() {
+  document.getElementById('voile').classList.add('on');
+  document.getElementById('nrTheme').focus();
+}
+function fermerNR() { document.getElementById('voile').classList.remove('on'); }
+
+function themeSaisi() {
+  var t = (document.getElementById('nrTheme').value || '').trim();
+  var q = (document.getElementById('nrQuestion').value || '').trim();
+  if (!t) { alert('Écrivez un thème.'); return null; }
+  return { theme: t, question: q || '[à compléter — une question fermée]' };
+}
+
+function commande(t, q) {
+  return 'THÈME : ' + t + '\n'
+       + 'QUESTION : ' + q + '\n'
+       + 'PÉRIMÈTRE : sources primaires et publications datées, français et anglais';
+}
+
+function copierTexte(txt, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () { avis(msg); },
+                                           function () { avis('Copie impossible — sélectionnez à la main'); });
+  } else { avis('Copie non disponible dans ce navigateur'); }
+}
+
+function avis(m) {
+  var d = document.createElement('div');
+  d.textContent = m;
+  d.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#5eead4;' +
+    'color:#08231f;font:700 13.5px ui-sans-serif,system-ui;padding:11px 20px;border-radius:999px;z-index:400;' +
+    'box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  document.body.appendChild(d);
+  setTimeout(function () { d.remove(); }, 2400);
+}
+
+function lireAttente() {
+  try { var b = localStorage.getItem('attente'); var t = JSON.parse(b || '[]');
+         return Array.isArray(t) ? t : []; } catch (e) { return []; }
+}
+function ecrireAttente(t) { try { localStorage.setItem('attente', JSON.stringify(t)); } catch (e) {} }
+
+function garderNR() {
+  var s = themeSaisi(); if (!s) return;
+  var t = lireAttente();
+  t.unshift({ theme: s.theme, question: s.question, quand: new Date().toLocaleDateString('fr-FR') });
+  if (t.length > 12) t = t.slice(0, 12);
+  ecrireAttente(t); dessinerAttente(); majCompteur();
+  copierTexte(commande(s.theme, s.question), 'Commande copiée — collez-la dans la conversation');
+  fermerNR();
+  document.getElementById('nrTheme').value = '';
+  document.getElementById('nrQuestion').value = '';
+}
+
+function lancerNR() {
+  var s = themeSaisi(); if (!s) return;
+  window.open('https://news.google.com/search?q=' + encodeURIComponent(s.theme + ' when:7d')
+              + '&hl=fr&gl=FR&ceid=FR:fr', '_blank');
+  avis('Recherche de presse ouverte');
+}
+
+function dessinerAttente() {
+  var ul = document.getElementById('att-liste');
+  var vide = document.getElementById('att-vide');
+  if (!ul) return;
+  var t = lireAttente();
+  ul.innerHTML = '';
+  vide.style.display = t.length ? 'none' : 'block';
+  for (var i = 0; i < t.length; i++) {
+    (function (d, idx) {
+      var li = document.createElement('li');
+      var q = document.createElement('span');
+      q.className = 'q';
+      q.innerHTML = '<b>' + d.theme.replace(/[<>&]/g, '') + '</b><i>' +
+                    (d.question || '').replace(/[<>&]/g, '') + '</i>';
+      var b1 = document.createElement('button');
+      b1.className = 'pt'; b1.textContent = 'Copier';
+      b1.onclick = function () { copierTexte(commande(d.theme, d.question), 'Commande copiée'); };
+      var b2 = document.createElement('button');
+      b2.className = 'pt sup'; b2.textContent = '×';
+      b2.onclick = function () { var a = lireAttente(); a.splice(idx, 1); ecrireAttente(a); dessinerAttente(); majCompteur(); };
+      li.appendChild(q); li.appendChild(b1); li.appendChild(b2);
+      ul.appendChild(li);
+    })(t[i], i);
+  }
+}
+
+function majCompteur() {
+  var e = document.getElementById('etat-attente');
+  if (!e) return;
+  var n = lireAttente().length;
+  e.innerHTML = n
+    ? '<b>' + n + '</b> demande' + (n > 1 ? 's' : '') + ' <b style="color:#fbbf24">en attente</b>'
+    : 'aucune demande en attente';
+}
+
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape') fermerNR();
+});
+dessinerAttente();
+majCompteur();
+
+(function () {
+  var h = (location.hash || '').replace('#', '');
+  var q = null;
+  if (h && IDS.indexOf(h) > -1) { q = h; }
+  else { try { var m = localStorage.getItem('vue'); if (m && IDS.indexOf(m) > -1) q = m; } catch (e) {} }
+  if (q && q !== 'accueil') ouvrir(q);
+})();
 </script>
-</body>
-</html>
+</body></html>
