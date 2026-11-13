@@ -23,7 +23,6 @@ padding:26px 0 18px;border-bottom:1px solid var(--line)}
 padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
 .site .mel{margin-left:auto}
 .site .imp:hover,.site .mel:hover{border-color:var(--accent);color:var(--accent)}
-
 /* bandeau de tête */
 .tete{margin:26px 0 0;padding:20px 22px;border:1px solid var(--line);border-radius:14px;
 background:linear-gradient(180deg,rgba(94,234,212,.10),rgba(96,165,250,.04))}
@@ -103,6 +102,9 @@ text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);margin:0 0 9px
 .mois .m-titre::after{content:"";flex:1;height:1px;background:var(--line)}
 .mois .m-n{font-size:11px;color:var(--muted);letter-spacing:0}
 .arch ul{list-style:none;margin:0;padding:0}
+.liste-notes li{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+margin:0 0 8px;transition:border-color .12s}
+.liste-notes li:hover{border-color:#3a465a}
 .arch li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;
 border:1px solid var(--line);border-radius:11px;background:var(--panel);margin:0 0 8px;transition:.15s}
 .arch li:hover{border-color:#3a465a}
@@ -195,7 +197,7 @@ border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
     <p class="vide" id="att-vide">Aucune demande en attente. Cliquez sur « ＋ Nouvelle recherche ».</p>
   </div>
 
-  <div class="arch"><h2>Archives · notes précédentes</h2><div class="mois"><p class="m-titre">novembre 2026<span class="m-n">3 notes</span></p><ul><li><a href="#messianismes" onclick="ouvrir('messianismes');return false;"><span class="t">Trois messianismes : 1666, le Mahdi, aujourd'hui</span><span class="fam tx">textuelle</span><span class="dt">10 novembre 2026</span><span class="q">Que se passe-t-il quand une attente messianique datée échoue — et qu'est-ce que les trois traditions en font ?</span></a></li><li><a href="#velo" onclick="ouvrir('velo');return false;"><span class="t">Le vélo en montagne</span><span class="fam ch">chiffrée</span><span class="dt">9 novembre 2026</span><span class="q">Le vélo est-il devenu un relais économique du ski dans les stations françaises ?</span></a></li><li><a href="#gueoula" onclick="ouvrir('gueoula');return false;"><span class="t">La gueoula et la venue du Messie</span><span class="fam tx">textuelle</span><span class="dt">8 novembre 2026</span><span class="q">Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</span></a></li></ul></div></div>
+  <div class="arch"><h2>Les notes</h2><ul class="liste-notes"><li><a href="#riner" onclick="ouvrir('riner');return false;"><span class="t">Teddy Riner : quels records sont vrais</span> <span class="statut prete">✓ nouvelle</span><span class="fam ch">chiffrée</span><span class="dt">11 novembre 2026</span><span class="q">Quels records de Teddy Riner sont vérifiables, et lesquels sont faux ou invérifiables ?</span></a></li><li><a href="#messianismes" onclick="ouvrir('messianismes');return false;"><span class="t">Trois messianismes : 1666, le Mahdi, aujourd'hui</span><span class="fam tx">textuelle</span><span class="dt">10 novembre 2026</span><span class="q">Que se passe-t-il quand une attente messianique datée échoue — et qu'est-ce que les trois traditions en font ?</span></a></li><li><a href="#velo" onclick="ouvrir('velo');return false;"><span class="t">Le vélo en montagne</span><span class="fam ch">chiffrée</span><span class="dt">9 novembre 2026</span><span class="q">Le vélo est-il devenu un relais économique du ski dans les stations françaises ?</span></a></li><li><a href="#gueoula" onclick="ouvrir('gueoula');return false;"><span class="t">La gueoula et la venue du Messie</span><span class="fam tx">textuelle</span><span class="dt">8 novembre 2026</span><span class="q">Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</span></a></li></ul></div>
 </section>
 
   <section class="panneau" id="n-riner">
@@ -805,4 +807,4 @@ majCompteur();
   if (q && q !== 'accueil') ouvrir(q);
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a583f698aa06bb40',t:'MTc5NDMwMjIzNw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a583f698aa06bb40',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</body></html>
