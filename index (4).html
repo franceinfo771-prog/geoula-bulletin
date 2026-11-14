@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord — notes et projets</title>
+<meta name="description" content="Recueil de notes documentées et suivi de projets.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<style>
+:root{--bg:#fbfaf7;--panel:#ffffff;--panel2:#f4f1ea;--line:#ded6c6;--text:#1f2420;--muted:#5b6660;--accent:#0f766e;--accent2:#1d4ed8}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1300px 760px at 8% -12%,#f2eee4 0%,var(--bg) 58%) no-repeat,var(--bg);
+color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+line-height:1.68;font-size:16px;padding:0 18px 110px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:800px;margin:0 auto}
+#lecture{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:200;transition:width .12s}
+
+.site{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;
+padding:26px 0 18px;border-bottom:1px solid var(--line)}
+.site .nom{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.site .nom b{color:var(--accent)}
+.site .dev{font-size:13px;color:var(--muted)}
+.site .imp,.site .mel{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.site .mel{margin-left:auto}
+.site .imp:hover,.site .mel:hover{border-color:var(--accent);color:var(--accent)}
+/* bandeau de tête */
+.tete{margin:26px 0 0;padding:20px 22px;border:1px solid var(--line);border-radius:14px;
+background:linear-gradient(180deg,rgba(94,234,212,.10),rgba(96,165,250,.04))}
+.tete .neuf{font-size:11px;text-transform:uppercase;letter-spacing:.16em;font-weight:700;color:var(--accent);margin:0 0 8px}
+.tete h1{margin:0 0 8px;font-size:clamp(25px,4vw,34px);letter-spacing:-.02em;line-height:1.2}
+.tete p{margin:0;color:var(--muted);font-size:14.5px}
+.tete .go{display:inline-block;margin-top:14px;background:var(--accent);color:#ffffff;text-decoration:none;
+font-weight:700;font-size:14px;padding:9px 17px;border-radius:10px}
+.tete .go:hover{filter:brightness(1.08)}
+
+/* répertoire */
+.rep-titre{display:flex;align-items:baseline;gap:10px;margin:36px 0 12px}
+.rep-titre h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:700;border:0;padding:0}
+.rep-titre .n{font-size:12px;color:var(--muted)}
+.rep{list-style:none;margin:0;padding:0}
+.rep li{border:1px solid var(--line);border-radius:12px;margin:0 0 9px;background:var(--panel);transition:.15s}
+.rep li:hover{border-color:#c9c0ad}
+.rep a{display:block;padding:13px 16px;text-decoration:none;color:var(--text)}
+.rep .l1{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.rep .t{font-weight:650;font-size:15px}
+.rep .d{font-size:12px;color:var(--muted);white-space:nowrap}
+.rep .m{font-size:12.8px;color:var(--muted);margin-top:4px;line-height:1.5}
+.rep .fam{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;
+padding:2px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.rep .fam.ch{color:var(--accent2);border-color:rgba(96,165,250,.4)}
+.rep .fam.tx{color:var(--accent);border-color:rgba(94,234,212,.35)}
+.rep a:hover .t{color:var(--accent)}
+
+nav.retour{margin:0 0 18px}
+nav.retour a{color:var(--muted);text-decoration:none;font-size:13.5px}
+nav.retour a:hover{color:var(--accent)}
+
+h1.titre-note{font-size:clamp(27px,4.4vw,40px);line-height:1.16;letter-spacing:-.02em;margin:0 0 12px}
+h2{font-size:clamp(19px,2.6vw,23px);margin:44px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line);color:var(--accent)}
+h3{font-size:17px;margin:26px 0 10px}
+h4{font-size:15px;margin:20px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kicker{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:700;color:var(--accent);margin:0 0 10px}
+.sous{color:var(--muted);font-size:15px;margin:0 0 6px}
+.piednote{color:var(--muted);font-size:13px;margin:14px 0 0}
+.panneau{display:none}
+.panneau.vu{display:block}
+p{margin:0 0 14px} ul,ol{margin:0 0 16px;padding-left:22px} li{margin:0 0 7px}
+strong{color:inherit;font-weight:650} em{color:var(--accent2)}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:14px}
+blockquote{margin:16px 0;padding:10px 18px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0}
+blockquote p:last-child{margin:0}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+.tbl{overflow-x:auto;margin:16px 0 22px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{background:var(--panel2);text-align:left;padding:10px 12px;font-size:12px;text-transform:uppercase;
+letter-spacing:.07em;color:var(--accent);border-bottom:1px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+footer{margin-top:54px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+footer b{color:var(--accent)}
+/* ---- statuts ---- */
+.statut{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;
+text-transform:uppercase;letter-spacing:.1em;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.statut.prete{background:rgba(94,234,212,.14);color:var(--accent);border:1px solid rgba(94,234,212,.35)}
+.statut.attente{background:rgba(180,83,9,.10);color:#b45309;border:1px solid rgba(180,83,9,.35)}
+
+/* bandeau de statut global */
+.etat-site{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;
+margin:20px 0 0;padding:11px 16px;border:1px solid var(--line);border-radius:11px;
+background:var(--panel);font-size:13px;color:var(--muted)}
+.etat-site b{color:var(--text);font-weight:600}
+.etat-site .p{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px}
+.etat-site .p.att{background:#b45309}
+
+/* archives */
+.arch{margin:38px 0 0}
+.arch h2{font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);
+font-weight:700;border:0;padding:0;margin:0 0 14px}
+.mois{margin:0 0 22px}
+.mois .m-titre{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;
+text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);margin:0 0 9px}
+.mois .m-titre::after{content:"";flex:1;height:1px;background:var(--line)}
+.mois .m-n{font-size:11px;color:var(--muted);letter-spacing:0}
+.arch ul{list-style:none;margin:0;padding:0}
+.liste-notes li{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+margin:0 0 8px;transition:border-color .12s}
+.liste-notes li:hover{border-color:#c9c0ad}
+.arch li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;
+border:1px solid var(--line);border-radius:11px;background:var(--panel);margin:0 0 8px;transition:.15s}
+.arch li:hover{border-color:#c9c0ad}
+.arch li a{flex:1 1 auto;display:block;padding:11px 14px;text-decoration:none;color:var(--text);min-width:0}
+.arch .t{font-weight:650;font-size:14.5px}
+.arch .q{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.arch .dt{font-size:12px;color:var(--muted);padding-right:14px;white-space:nowrap}
+.arch li:hover .t{color:var(--accent)}
+.arch a{display:flex!important;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+
+/* ---- nouvelle recherche ---- */
+.nr{margin-left:8px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;
+padding:7px 13px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:#ffffff}
+.nr:hover{filter:brightness(1.08)}
+.voile{position:fixed;inset:0;background:rgba(24,26,22,.55);backdrop-filter:blur(3px);z-index:300;
+display:none;align-items:flex-start;justify-content:center;padding:60px 16px 20px;overflow:auto}
+.voile.on{display:flex}
+.boite{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:520px;width:100%;
+padding:22px 24px 20px;box-shadow:0 24px 70px rgba(24,26,22,.45)}
+.boite h3{margin:0 0 6px;font-size:19px;letter-spacing:-.01em;color:var(--accent)}
+.boite .aide{margin:0 0 16px;font-size:13px;color:var(--muted);line-height:1.55}
+.boite label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;
+color:var(--muted);font-weight:700;margin:0 0 6px}
+.boite input,.boite textarea{width:100%;background:var(--panel2);border:1px solid var(--line);
+color:var(--text);font:inherit;font-size:14px;padding:10px 12px;border-radius:9px;outline:none;margin:0 0 14px}
+.boite textarea{min-height:64px;resize:vertical;line-height:1.5}
+.boite input:focus,.boite textarea:focus{border-color:var(--accent)}
+.boite .champs{font-size:12px;color:var(--muted);margin:-8px 0 14px}
+.pied-boite{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.pied-boite button{font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:9px 15px;
+border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.pied-boite button:hover{border-color:var(--accent);color:var(--accent)}
+.pied-boite button.ok{background:var(--accent);color:#ffffff;border-color:var(--accent)}
+.pied-boite button.ok:hover{filter:brightness(1.08);color:#ffffff}
+
+/* attente */
+.attente{margin:34px 0 0;padding:14px 18px;border:1px dashed var(--line);border-radius:12px;background:rgba(96,165,250,.04)}
+.attente .ti{font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--accent2);margin:0 0 10px}
+.attente ul{list-style:none;margin:0;padding:0}
+.attente li{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:13.5px;
+border-top:1px solid var(--line);padding:9px 0 0;margin:9px 0 0}
+.attente li:first-child{border-top:0;padding-top:0;margin-top:0}
+.attente .q{flex:1 1 200px;min-width:0}
+.attente .q b{color:var(--text)}
+.attente .q i{color:var(--muted);font-style:normal;display:block;font-size:12.5px;margin-top:2px}
+.attente .pt{font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:5px 9px;border-radius:7px;
+border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+.attente .pt:hover{border-color:var(--accent);color:var(--accent)}
+.attente .pt.sup:hover{border-color:#b91c1c;color:#b91c1c}
+.attente .vide{font-size:13px;color:var(--muted);font-style:italic}
+
+@media print{.voile,.nr,.attente{display:none!important}
+.onglets,.site .imp,.site .mel,#lecture,nav.retour,.tete .go{display:none}
+ body{background:#fff;color:#1f2420;padding:0}.panneau{display:block!important}
+ h2{color:#e6f2f0}em{color:#2a2f2b}strong{color:inherit}.tbl{border-color:#b9b1a0}
+ th{background:#f2eee4;color:#000}td{border-color:#d8d0bf}.site,footer{border-color:#b9b1a0}}
+.meta-note{line-height:1.9}.meta-note strong{color:var(--accent2,#8a6d1f)}
+
+/* ===== SECTION PROJETS ===== */
+.projets{margin:34px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+.projets>b{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent2);margin-bottom:4px}
+.projets h2{font-size:21px;margin:0 0 4px}
+.projets .intro{color:var(--muted);font-size:14px;margin:0 0 18px}
+.cartes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cartes .carte:last-child:nth-child(odd){grid-column:1/-1}
+@media(max-width:720px){.cartes{grid-template-columns:1fr}}
+.carte{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:15px 16px;text-decoration:none;color:inherit;transition:.15s;position:relative}
+.carte:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(15,118,110,.10)}
+.carte .ct{font-weight:700;font-size:15.5px;display:block;margin-bottom:3px;color:var(--text);padding-right:22px}
+.carte .cd{font-size:13px;color:var(--muted);line-height:1.45;display:block}
+.carte .ctag{display:inline-block;margin-top:9px;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:3px 7px;border-radius:5px;white-space:nowrap}
+.t-enligne{background:#e6f2f0;color:#0f766e}
+.t-local{background:#f2ecdc;color:#8a6d1f}
+.carte .fleche{position:absolute;top:14px;right:15px;color:var(--accent);font-size:16px}
+.carte.sanslien{cursor:default}
+.carte.sanslien:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(15,118,110,.10)}
+
+
+.carte .liens2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:flex-start}
+.carte .liens2 a{font-size:12.5px;font-weight:700;text-decoration:none;
+  color:var(--accent);border:1px solid currentColor;border-radius:7px;padding:5px 10px}
+.carte .liens2 a:hover{background:var(--accent);color:#fff}
+
+.petitlien{margin:14px 0 0;font-size:13.5px}
+.petitlien a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px}
+.petitlien a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* ---------- TABLEAU DE BORD ---------- */
+  .tdb{margin:26px 0 6px}
+  .tdb>b{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent2);margin-bottom:4px}
+  .tdb h2{font-size:21px;margin:0 0 3px}
+  .tdb .intro{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+  .tdb-liste{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:720px){.tdb-liste{grid-template-columns:1fr}}
+  .tdb-item{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px 14px;
+            display:flex;gap:11px;align-items:flex-start}
+  .tdb-past{flex:0 0 auto;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+            padding:4px 7px;border-radius:6px;white-space:nowrap;margin-top:1px}
+  .p-encours{background:#e8f0fe;color:#1d4ed8}
+  .p-apublier{background:#fdf0e3;color:#b45309}
+  .p-atteindre{background:#f1eee6;color:#6b6558}
+  .p-fait{background:#e6f2f0;color:#0f766e}
+  .tdb-txt{flex:1 1 auto;min-width:0}
+  .tdb-t{font-weight:700;font-size:14px;color:var(--text);display:block;margin-bottom:2px}
+  .tdb-s{font-size:12.5px;color:var(--muted);line-height:1.45;display:block}
+  .tdb-item>a{flex:0 0 auto;align-self:center;color:var(--muted);text-decoration:none;font-size:15px;
+             border:1px solid var(--line);border-radius:8px;padding:3px 8px}
+  .tdb-item>a:hover{color:var(--accent);border-color:var(--accent)}
+  .tdb-compte{font-size:12.5px;color:var(--muted);margin:12px 0 0}
+
+  .tete-mince{padding:11px 16px;border-radius:10px;background:none;border:0;border-bottom:1px solid var(--line);margin:14px 0 0}
+  .tete-mince .neuf{margin:0;font-size:11px;letter-spacing:.14em;color:var(--muted)}
+  .tete-mince .neuf b{color:var(--text);font-weight:700}
+</style></head>
+<body>
+<div id="lecture"></div>
+<div class="wrap">
+
+  <header class="site">
+    <span class="nom">Tableau de bord<b>.</b></span>
+    <span class="dev">notes et projets, au même endroit</span>
+    <button class="nr" onclick="ouvrirNR()">＋ Nouvelle recherche</button>
+    <button class="mel" onclick="envoyerMail()">✉ M'envoyer par mail</button>
+    <button class="imp" onclick="window.print()">🖨 Imprimer</button>
+  </header>
+
+  
+<section class="panneau vu" id="n-accueil"><span id="accueil"></span>
+  <div class="etat-site">
+    <span><span class="p"></span>Dernière note <b>prête</b> le <b>8 novembre 2026</b></span>
+    <span>·</span>
+    <span><b>1</b> note au répertoire</span>
+    <span>·</span>
+    <span><b>6</b> chantiers suivis</span>
+    
+  </div>
+
+  
+
+  
+
+  <div class="tdb">
+    <b>Tableau de bord</b>
+    <h2>Où en sont les choses</h2>
+    <p class="intro">Les prochaines étapes, projet par projet.</p>
+    <div class="tdb-liste">
+
+      <div class="tdb-item">
+        <span class="tdb-past p-encours">En cours</span>
+        <span class="tdb-txt"><span class="tdb-t">Mettre en ligne les trois sites</span>
+        <span class="tdb-s">Les trois sites sont prêts et testés : il ne reste qu'à déposer les ZIP sur Netlify et Cloudflare.</span></span>
+      </div>
+
+      <div class="tdb-item">
+        <span class="tdb-past p-fait">Fait</span>
+        <span class="tdb-txt"><span class="tdb-t">Renommer l'adresse du site</span>
+        <span class="tdb-s">C'est fait : le nom du sujet a disparu de l'adresse. Le dépôt s'appelle désormais tableau_de_bord.</span></span>
+      </div>
+
+      <div class="tdb-item">
+        <span class="tdb-past p-apublier">À faire</span>
+        <span class="tdb-txt"><span class="tdb-t">Publier la nouvelle version du tableau de bord</span>
+        <span class="tdb-s">Le fichier est prêt sur le Drive ; il ne reste qu'à le déposer sur GitHub.</span></span>
+      </div>
+
+      <div class="tdb-item">
+        <span class="tdb-past p-encours">En cours</span>
+        <span class="tdb-txt"><span class="tdb-t">Vélo électrique DIY</span>
+        <span class="tdb-s">Liste d'achats au prix plancher et câblage arrêtés ; reste le montage.</span></span>
+        <a href="https://drive.google.com/drive/folders/1UZp9d9aZvKdXg4XXENTzTfW-GU6K26dm" target="_blank" rel="noopener" title="Ouvrir le dossier">↗</a>
+      </div>
+
+      <div class="tdb-item">
+        <span class="tdb-past p-encours">En cours</span>
+        <span class="tdb-txt"><span class="tdb-t">Maquette — portes du bâtiment</span>
+        <span class="tdb-s">Portes recouvertes d'absorbants, en taille réduite. La première photo est au dossier.</span></span>
+        <a href="https://drive.google.com/drive/folders/1xeZ_CT7qpf6sI72fACtLbu5btYr611Tp" target="_blank" rel="noopener" title="Ouvrir le dossier">↗</a>
+      </div>
+
+      <div class="tdb-item">
+        <span class="tdb-past p-encours">En cours</span>
+        <span class="tdb-txt"><span class="tdb-t">Guéoula — recherches et notes</span>
+        <span class="tdb-s">Recherches toujours possibles : de nouvelles notes viennent s'ajouter au fil des découvertes. La note en ligne date du 8 novembre 2026.</span></span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="arch"><h2>Les notes</h2><ul class="liste-notes"><li><a href="#gueoula" onclick="ouvrir('gueoula');return false;"><span class="t">La gueoula et la venue du Messie</span><span class="statut prete">✓ prête</span><span class="fam tx">textuelle</span><span class="dt">8 novembre 2026</span><span class="q">Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</span></a></li></ul></div>
+
+
+  
+
+  <div class="projets">
+    <b>Mes projets</b>
+    <h2>Les autres projets</h2>
+    <p class="intro">Les sites et les dossiers de travail, au même endroit.</p>
+
+    <div class="cartes">
+
+      <a class="carte" href="https://franceinfo771-prog.github.io/tableau_de_bord/" target="_blank" rel="noopener">
+        <span class="fleche">↗</span>
+        <span class="ct">Tableau de bord — en ligne</span>
+        <span class="cd">La version publiée de cette page : notes et projets, accessible depuis n'importe où.</span>
+        <span class="ctag t-enligne">En ligne · GitHub</span>
+      </a>
+
+      <a class="carte" href="https://drive.google.com/drive/folders/1xeZ_CT7qpf6sI72fACtLbu5btYr611Tp" target="_blank" rel="noopener">
+        <span class="fleche">↗</span>
+        <span class="ct">Maquette — portes du bâtiment</span>
+        <span class="cd">Les portes d'un bâtiment recouvertes d'absorbants, réalisées en taille réduite : panneaux à pointes, montage et finition.</span>
+        <span class="ctag t-local">Dossier Drive</span>
+      </a>
+
+      <a class="carte" href="https://drive.google.com/drive/folders/1UZp9d9aZvKdXg4XXENTzTfW-GU6K26dm" target="_blank" rel="noopener">
+        <span class="fleche">↗</span>
+        <span class="ct">Vélo électrique DIY</span>
+        <span class="cd">Roue d'hoverboard, Arduino et contrôleur ZS-X11H : achats au prix plancher, câblage, code.</span>
+        <span class="ctag t-local">Dossier Drive</span>
+      </a>
+
+      <a class="carte" href="https://splendorous-dusk-bb1f86.netlify.app/" target="_blank" rel="noopener">
+        <span class="fleche">↗</span>
+        <span class="ct">Guéoula — Bulletin 5787</span>
+        <span class="cd">Décisions rabbiniques, évolutions concrètes et débats halakhiques autour du Beit HaMikdash.</span>
+        <span class="ctag t-enligne">En ligne · Netlify</span>
+      </a>
+
+      <a class="carte" href="https://actualite-avec-recul.franceinfo771.workers.dev/" target="_blank" rel="noopener">
+        <span class="fleche">↗</span>
+        <span class="ct">L'actualité avec recul</span>
+        <span class="cd">Édition pilote : comprendre avant de réagir, avec les sources et les limites de chaque affirmation.</span>
+        <span class="ctag t-enligne">En ligne · Cloudflare</span>
+      </a>
+
+      <a class="carte" href="https://drive.google.com/drive/folders/1-WHh-pIABwMZpUZ3xZJOGtkfu41ycgOQ" target="_blank" rel="noopener">
+        <span class="fleche">↗</span>
+        <span class="ct">Mes voyages à bon prix</span>
+        <span class="cd">Préparer un séjour sans se ruiner : Marrakech, Cracovie, Porto, et un formulaire de préférences.</span>
+        <span class="ctag t-local">Dossier Drive</span>
+      </a>
+
+    </div>
+
+  </div>
+
+  </section>
+
+  <section class="panneau" id="n-gueoula"><span id="gueoula"></span>
+<nav class="retour"><a href="#accueil" onclick="ouvrir('accueil');return false;">← Répertoire</a></nav>
+<p class="kicker">Note documentée · textes primaires</p>
+<h1 class="titre-note">La gueoula et la venue du Messie</h1>
+<p class="sous">Qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</p>
+<p class="piednote"><span class="statut prete">✓ prête</span> publiée le 8 novembre 2026 · à revoir en août 2027</p>
+<h1>Note de recherche — La Gueoula et l'attente du Messie</h1>
+<p class="meta-note"><strong>Thème :</strong> la <em>gueoula</em> (גאולה) — la rédemption — et l'attente messianique <br><strong>Question posée :</strong> <em>qu'est-ce que ce mot désigne exactement, comment les traditions l'attendent-elles, et que peut-on dire de vérifiable sur cette attente ?</em> <br><strong>Date de la note :</strong> 08/11/2026 · <strong>à revoir :</strong> août 2027 <br><strong>Périmètre :</strong> sources textuelles juives, chrétiennes et musulmanes + littérature en sciences sociales</p>
+<blockquote><p><strong>Avertissement de méthode.</strong> Cette note ne tranche pas une question de foi. Elle établit ce que les textes disent, comment les courants les interprètent, et ce que les sciences sociales ont observé des mouvements messianiques. La distinction entre « ce qui est documenté » et « ce qui est cru » est maintenue partout.</p></blockquote>
+<hr>
+<h2>1. Le résultat, en une phrase</h2>
+<blockquote><p>« Gueoula » est un mot hébreu qui signifie « rédemption ». Ce n'est pas un événement datable, mais un concept : le retour d'une situation à son état juste. Les trois grandes traditions abrahamiques l'attendent, mais elles divergent sur <em>qui</em> vient, <em>quand</em> et <em>comment</em> — et toutes, chacune à sa manière, découragent le calcul de la date.</p></blockquote>
+<p>C'est le point le plus solide de toute cette recherche, et le plus contre-intuitif : <strong>les traditions qui attendent le Messie sont aussi celles qui interdisent d'en calculer l'arrivée.</strong></p>
+<hr>
+<h2>2. Le mot avant l'attente : ce que « gueoula » veut dire</h2>
+<p>Le terme vient de la racine hébraïque גאל (<em>ga'al</em>)<strong> : racheter, réclamer, restaurer dans son droit. Le participe </strong><em>go'el</em> (גואל)<strong> désigne le « rédempteur parent » — celui qui, dans le livre de Ruth, rachète la terre et la lignée d'une veuve. </strong> La rédemption, dans son sens d'origine, est un acte juridique et familial, pas un événement cosmique.</p>
+<div class="tbl"><table><thead><tr><th>Aspect</th><th><em>Geoula</em> (גאולה)</th><th><em>Pidyon</em> (פדיון)</th></tr></thead><tbody><tr><td>Sens</td><td>rédemption-restauration</td><td>rachat-libération</td></tr><tr><td>Logique</td><td>on <strong>restaure</strong> ce qui était à soi</td><td>on <strong>retire</strong> d'une situation mauvaise</td></tr><tr><td>Portée</td><td>collective, nationale</td><td>souvent individuelle</td></tr><tr><td>Selon le Hatam Sofer (1762-1839)</td><td>rédemption « positive » : on s'élève au-dessus de sa condition</td><td>rédemption « négative » : on est simplement sauvé du malheur</td></tr><tr><td>Selon le Malbim (1809-1879)</td><td>naît de la <strong>proximité</strong> entre le rédempteur et le racheté</td><td>constate le fait du salut</td></tr></tbody></table></div>
+<p>Orthographe : <em>geulah</em>, <em>geoula</em>, <em>gueoula</em>, <em>ge'oula</em> sont la même chose — la translittération française du même mot. En anglais : <em>geulah</em>.</p>
+<p><strong>Ce que ce mot n'est pas :</strong> il ne signifie pas « fin du monde », ni « jugement dernier », ni « apocalypse ». Ces notions existent dans les mêmes corpus, mais ce sont des concepts distincts. Confondre <em>geoula</em> et fin des temps est l'erreur la plus fréquente.</p>
+<hr>
+<h2>3. Trois attentes, trois structures</h2>
+<p>Le mot « messie » vient de l'hébreu <em><strong>mashia'h</strong></em> (משיח, « oint »), traduit en grec par <em>Christos</em>. Les trois traditions utilisent donc des mots apparentés — mais elles n'attendent pas la même chose, et surtout pas au même moment du temps.</p>
+<div class="tbl"><table><thead><tr><th></th><th><strong>Judaïsme</strong></th><th><strong>Christianisme</strong></th><th><strong>Islam</strong></th></tr></thead><tbody><tr><td><strong>Statut</strong></td><td>à venir</td><td>déjà venu, retour attendu</td><td>à venir</td></tr><tr><td><strong>Figure</strong></td><td><em>Mashia'h</em>, descendant de David</td><td>Jésus, reconnu comme Messie</td><td>le Mahdi (et le retour de Îsâ/Jésus)</td></tr><tr><td><strong>Rôle</strong></td><td>rétablir la royauté de David, rebâtir le Temple, rassembler les exilés</td><td>sauver du péché, puis juger à son retour</td><td>rétablir la justice avant la fin</td></tr><tr><td><strong>Nature de l'ère</strong></td><td><strong>ce monde-ci</strong>, restauré</td><td>monde présent puis monde à venir</td><td>période précédant la Résurrection</td></tr><tr><td><strong>Miracles nécessaires ?</strong></td><td><strong>non</strong> (Rambam, <em>Melakhim</em> 11:3)</td><td>oui, dans la lecture chrétienne</td><td>signes, oui</td></tr><tr><td><strong>Calcul de la date</strong></td><td><strong>proscrit</strong> (Sanhedrin 97b)</td><td><strong>proscrit</strong> (Mt 24:36)</td><td>réservé à Dieu seul</td></tr></tbody></table></div>
+<h3>Détail juif : les deux voies</h3>
+<p>Le Talmud (<em>Sanhedrin</em> 98a) enseigne que la rédemption peut venir de deux façons, à partir du verset d'Isaïe 60:22 — « <em>be'ito</em> » (« en son temps ») ou « <em>achishena</em> » (« je l'activerai ») :</p>
+<ul><li><em><strong>be'ito</strong></em> : au terme fixé, quoi qu'il arrive ;</li><li><em><strong>achishena</strong></em> : plus tôt, si le peuple revient vers Dieu.</li></ul>
+<p>Autrement dit : <strong>la date n'est pas une donnée, c'est une variable dépendant du comportement humain.</strong> Cette structure explique pourquoi, dans ce cadre, calculer n'a pas de sens — on ne peut pas calculer ce qui dépend de ce qu'on fait.</p>
+<h3>Détail juif : les critères du Rambam</h3>
+<p>Maïmonide (<em>Mishné Torah</em>, <em>Hilkhot Melakhim</em>, ch. 11) fixe une procédure en deux temps — c'est le passage le plus cité, et le plus mal lu :</p>
+<p>① On « présume » (<em>chezkat mashia'h</em>) qu'un homme est le Messie s'il remplit trois conditions : descendant de David, versé dans la Torah et les commandements comme David, capable d'entraîner tout Israël et de « réparer les brèches », et s'il combat les guerres de Dieu.</p>
+<p>② On le « sait avec certitude » (<em>vadaï</em>) seulement s'il réussit : victoire sur les ennemis alentour, reconstruction du Temple à sa place, rassemblement des exilés.</p>
+<p>Et le Rambam ajoute, ce qui est décisif :</p>
+<blockquote><p>« S'il n'a pas réussi jusqu'ici, ou s'il a été tué, il est établi qu'il n'est pas celui que la Torah a promis. Il est comme tous les rois légitimes de la maison de David qui sont morts. »</p></blockquote>
+<p>Puis, au chapitre 12 : « <strong>le monde suivra son cours habituel</strong> » (<em>olam ke-minhago noheg</em>) — c'est-à-dire que l'ère messianique n'implique pas de bouleversement des lois de la nature. Et enfin : « <strong>Tous les termes calculés sont passés ; la chose ne dépend plus que du retour vers Dieu et des bonnes actions.</strong> »</p>
+<p><strong>Ce que cela signifie pour votre thème :</strong> dans la lecture maïmonidienne, l'attente est <strong>vérifiable a posteriori, jamais a priori</strong>. On ne reconnaît pas le Messie à des signes annoncés ; on constate, après coup, qu'un candidat a accompli ou non l'ensemble. Le critère est le résultat, pas l'annonce.</p>
+<hr>
+<h2>4. L'interdiction de calculer : ce que disent précisément les textes</h2>
+<p>C'est le point où les trois traditions se rejoignent le plus nettement, et c'est vérifiable mot pour mot.</p>
+<h3>Talmud de Babylone, <em>Sanhedrin</em> 97b</h3>
+<blockquote><p>« Rabbi Chmouel bar Na'hmani dit au nom de Rabbi Yonatan : Que pourrissent les os de ceux qui calculent la fin ! Car ils diront : puisque le terme calculé est arrivé et que le Messie n'est pas venu, il ne viendra plus du tout. »</p></blockquote>
+<p>La suite du passage est encore plus intéressante : la raison de l'interdit n'est pas l'orgueil, mais <strong>la conséquence psychologique</strong>. Le calcul produit des déçus, et les déçus cessent d'attendre. Le Talmud ajoute : « Tous les termes calculés sont passés, et la chose ne dépend que du retour et des bonnes actions » ; et ailleurs, il rapporte que Rabbi Zeira, voyant des sages discuter des calculs de la fin, leur disait : « Je vous en prie, ne retardez pas sa venue. »</p>
+<h3>Habacuc 2:3, cité dans le même passage</h3>
+<blockquote><p>« Si elle tarde, attends-la, car elle viendra sûrement, elle ne sera pas en retard. »</p></blockquote>
+<p>C'est la formule que le Talmud place au cœur de l'attitude correcte : <strong>attendre sans calculer.</strong></p>
+<h3>Nouveau Testament, Matthieu 24:36</h3>
+<blockquote><p>« Quant à ce jour et à cette heure, nul ne les connaît — pas même les anges du ciel, ni le Fils, mais le Père seul. »</p></blockquote>
+<p>Même structure : un événement attendu, une date soustraite à toute connaissance humaine.</p>
+<h3>Islam</h3>
+<p>La tradition islamique réserve de même la connaissance de l'Heure à Dieu. Le Coran affirme que la connaissance de l'heure est auprès de Dieu seul (sourate 7, verset 187) — <em>repère à vérifier dans une édition de référence, la numérotation variant selon les éditions.</em></p>
+<hr>
+<h2>5. Le cas le plus instructif : « When Prophecy Fails » — et sa contestation</h2>
+<p>C'est l'expérience la plus citée en sciences sociales sur ce sujet, et elle vient d'être sérieusement contestée. C'est exactement le genre de nuance qu'on ne trouve pas dans un moteur de recherche.</p>
+<h3>Ce qu'on lit partout</h3>
+<p>En 1956, <strong>Leon Festinger</strong>, Henry Riecken et Stanley Schachter publient <em>When Prophecy Fails</em> : une petite secte de Chicago avait annoncé un cataclysme pour une date précise. La date passa. Loin de se disperser, les membres les plus engagés <strong>redoublèrent de zèle et se mirent à recruter</strong>. Festinger en tire sa théorie de la <strong>dissonance cognitive</strong> : quand les faits contredisent une croyance coûteuse, on change non pas la croyance mais son environnement — en convainquant d'autres, on rend la croyance plus « vraie ».</p>
+<p>Depuis, l'épisode sert à expliquer <strong>tous</strong> les échecs de prophéties : sabbatéisme, millérisme, montanisme, et les mouvements contemporains.</p>
+<h3>Ce que la recherche récente montre</h3>
+<p>En 2025, <strong>Thomas Kelly</strong> a publié une enquête dans le <em>Journal of the History of the Behavioral Sciences</em> : les chercheurs auraient <strong>fabriqué de faux messages « psychiques » d'extraterrestres pour influencer le comportement du groupe</strong>, notamment la nuit où la prophétie a échoué. Selon cette lecture, Festinger et ses collègues ont <strong>scénarisé</strong> la réalité pour confirmer leur théorie — au détriment de l'observation.</p>
+<p>Un point de méthode qui compte : <strong>la théorie de la dissonance cognitive ne repose pas que sur cette étude</strong>, et reste un outil valide. C'est <strong>le récit fondateur</strong> qui est fragile, pas nécessairement le mécanisme.</p>
+<h3>Et pourtant, le mécanisme se constate ailleurs</h3>
+<p>D'autres mouvements documentés indépendamment présentent le même schéma : après l'échec, une minorité abandonne, et un noyau <strong>réinterprète la prophétie</strong> (la date était symbolique, l'événement a eu lieu « dans le ciel », le calendrier est mauvais) et redouble d'efforts. C'est ce que l'on observe dans l'histoire du sabbatéisme après l'apostasie de Sabbataï Tsevi en 1666, et chez les millérites après 1844.</p>
+<p><strong>Le constat solide, indépendant de la controverse Festinger :</strong> dans tous les cas documentés, <strong>une prophétie datée a produit, après son échec, soit une réinterprétation, soit un réengagement — rarement un abandon pur et simple.</strong></p>
+<hr>
+<h2>6. Ce sur quoi les sources convergent (confiance élevée)</h2>
+<h3>① Le mot est central, pas marginal</h3>
+<p><em>Geoula</em> structure la liturgie juive quotidienne (la bénédiction <em>Gueoula</em> après le <em>Chéma</em>), le cycle des fêtes, et le vocabulaire politique israélien contemporain. Ce n'est pas une curiosité d'illuminés : c'est un pilier théologique.</p>
+<h3>② Les trois traditions interdisent de calculer la date</h3>
+<p>Sanhedrin 97b, Matthieu 24:36, sourate 7:187 : trois corpus indépendants, trois formulations différentes, même conclusion. C'est la convergence la plus nette de cette recherche.</p>
+<h3>③ Tous les mouvements datés ont échoué — et ont été réinterprétés</h3>
+<p>Bar Kokhba (135), Sabbataï Tsevi (1666), les millérites (1844), et les annonces plus récentes. Aucune date n'a tenu. Chaque fois, le noyau a réinterprété plutôt qu'abandonné.</p>
+<h3>④ La distinction entre ère messianique et fin des temps est constante</h3>
+<p>Le Rambam est explicite : chapitre 11 traite du Messie roi, chapitre 12 du monde à venir, et il refuse de mêler les deux. La confusion <em>gueoula</em> / fin du monde est un raccourci populaire, pas une donnée doctrinale.</p>
+<h3>⑤ L'attente messianique produit des effets historiques réels</h3>
+<p>Indépendamment de la vérité des croyances : le sabbatéisme a bouleversé le monde juif du XVIIe siècle, le millérisme a donné naissance à l'adventisme, le mahdisme a structuré des mouvements politiques au Soudan et en Iran. <strong>Ce sont des faits historiques observables.</strong></p>
+<hr>
+<h2>7. Ce qui reste indécidable — et pourquoi</h2>
+<div class="tbl"><table><thead><tr><th>Question</th><th>Statut</th></tr></thead><tbody><tr><td>Une figure messianique viendra-t-elle ?</td><td><strong>Indécidable par la recherche.</strong> Relève de la foi, pas de la preuve.</td></tr><tr><td>Peut-on dater cet événement ?</td><td><strong>Non</strong> — et les trois traditions l'excluent explicitement.</td></tr><tr><td>Une personne précise est-elle le Messie ?</td><td><strong>Non évaluable a priori</strong>, y compris dans le cadre du Rambam (critère de réussite a posteriori).</td></tr><tr><td>Quelle tradition a raison ?</td><td><strong>Aucune méthode scientifique ne peut trancher.</strong> Les corpus ne sont pas falsifiables.</td></tr><tr><td>Les mouvements messianiques se comportent-ils tous de la même façon ?</td><td><strong>Partiellement vrai</strong> — le mécanisme est documenté, mais ses causes ne sont pas réductibles à la seule dissonance cognitive.</td></tr></tbody></table></div>
+<p><strong>Il n'y a pas de « réponse cachée » que la recherche aurait manquée.</strong> C'est une question de nature différente de celle des agents IA : il n'existe pas de données extérieures aux textes pour l'arbitrer. Prétendre le contraire — dans un sens ou dans l'autre — serait tromper le lecteur.</p>
+<hr>
+<h2>8. L'essentiel — affirmations et niveaux de confiance</h2>
+<div class="tbl"><table><thead><tr><th>Affirmation</th><th>Confiance</th></tr></thead><tbody><tr><td>« Gueoula » signifie « rédemption », non « fin du monde »</td><td><strong>Très élevée</strong> — étymologie et usage liturgique constants</td></tr><tr><td>Les trois traditions interdisent de calculer la date</td><td><strong>Très élevée</strong> — trois textes explicites, vérifiables</td></tr><tr><td>Le Rambam établit des critères de vérification <em>a posteriori</em></td><td><strong>Très élevée</strong> — texte disponible, traduction française courante</td></tr><tr><td>Toutes les prophéties datées ont échoué et ont été réinterprétées</td><td><strong>Élevée</strong> — cas historiques bien documentés</td></tr><tr><td>La dissonance cognitive explique ces réinterprétations</td><td><strong>Moyenne</strong> — mécanisme réel, mais l'étude fondatrice (1956) est contestée depuis 2025</td></tr><tr><td>Les traditions convergent parce qu'elles s'influencent mutuellement</td><td><strong>Moyenne</strong> — plausible pour l'islam et le christianisme, moins pour le Talmud (antérieur)</td></tr><tr><td>Une date peut être déduite des textes</td><td><strong>Très faible</strong> — aucun calcul n'a jamais abouti, et tous les corpus l'excluent</td></tr></tbody></table></div>
+<hr>
+<h2>9. Ce que ça change concrètement pour votre projet</h2>
+<p>Puisque le bulletin porte le nom de la <strong>gueoula</strong> elle-même — et non celui d'une actualité : le nom que vous avez choisi désigne <strong>la rédemption</strong>, pas une actualité. Ça oriente tout.</p>
+<h3>La ligne éditoriale qui découle de cette recherche</h3>
+<div class="tbl"><table><thead><tr><th>À faire</th><th>Pourquoi</th></tr></thead><tbody><tr><td><strong>Traiter le thème comme une étude de textes et d'histoires</strong>, pas comme une annonce</td><td>c'est ce que la recherche permet, et c'est ce qui différencie votre bulletin</td></tr><tr><td><strong>Toujours nommer la tradition</strong> dont on parle (juive / chrétienne / musulmane)</td><td>leurs attentes sont structurellement différentes ; les confondre est la faute la plus courante</td></tr><tr><td><strong>Signaler les réinterprétations</strong> quand une date passe</td><td>c'est l'observation la plus solide des sciences sociales</td></tr><tr><td>Distinguer <em>geoula</em> et fin des temps</td><td>c'est l'erreur de vocabulaire la plus fréquente du sujet</td></tr></tbody></table></div>
+<h3>Les trois lignes rouges</h3>
+<ol><li><strong>Ne jamais publier de date</strong> — ni la reprendre, ni la commenter comme probable.</li></ol>
+<p>   Les trois traditions l'interdisent, et 100 % des cas documentés ont échoué.</p>
+<ol><li><strong>Ne jamais désigner une personne vivante comme le Messie</strong> — ni pour l'affirmer ni pour</li></ol>
+<p>   le suggérer. C'est le point où un bulletin bascule de l'étude vers la polémique.</p>
+<ol><li><strong>Ne pas fusionner les trois attentes</strong> — un lecteur musulman, un lecteur juif et un lecteur</li></ol>
+<p>   chrétien n'attendent pas la même chose au même moment du temps.</p>
+<h3>Trois formats possibles pour le bulletin</h3>
+<div class="tbl"><table><thead><tr><th>Format</th><th>Contenu</th><th>Fréquence réaliste</th></tr></thead><tbody><tr><td><strong>Fiche de source</strong></td><td>un texte, sa traduction, ce qu'il dit vraiment, ce qu'on lui fait dire à tort</td><td>mensuel</td></tr><tr><td><strong>Cas historique</strong></td><td>un mouvement messianique daté : ce qu'il annonçait, ce qui s'est passé, comment il a réinterprété</td><td>mensuel</td></tr><tr><td><strong>Note de veille</strong></td><td>ce qui a été publié récemment sur le thème, avec les niveaux de confiance</td><td>trimestriel</td></tr></tbody></table></div>
+<hr>
+<h2>10. Sources retenues</h2>
+<h3>Sources primaires — textes</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Datation</th></tr></thead><tbody><tr><td>Talmud de Babylone, <em>Sanhedrin</em> 97a-98b</td><td>l'interdit du calcul de la fin (<em>tipa'h</em>) ; les deux voies <em>be'ito</em> / <em>achishena</em> ; « tous les termes calculés sont passés »</td><td>~Ve siècle</td></tr><tr><td><strong>Isaïe 60:22 ; Habacuc 2:3</strong></td><td>les versets sur lesquels repose toute la discussion</td><td>—</td></tr><tr><td>Maïmonide (Rambam), <em>Mishné Torah</em>, <em>Hilkhot Melakhim</em> ch. 11-12</td><td>critères de <em>chezkat mashia'h</em> et de <em>vadaï</em> ; « pas besoin de miracles » ; « le monde suit son cours »</td><td>~1180</td></tr><tr><td><strong>Matthieu 24:36</strong></td><td>« nul ne connaît le jour ni l'heure »</td><td>Ier siècle</td></tr><tr><td><strong>Coran 7:187</strong></td><td>la connaissance de l'Heure réservée à Dieu</td><td>VIIe siècle</td></tr></tbody></table></div>
+<h3>Sources secondaires — recherche et référence</h3>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Ce qu'elle apporte</th><th>Date</th></tr></thead><tbody><tr><td><strong>Ohr Somayach</strong> (<em>Ohrnet</em>, dossier Tisha b'Av)</td><td>synthèse pédagogique sur <em>be'ito</em> / <em>achishena</em>, citations du Maharam Schick</td><td>2023</td></tr><tr><td><strong>Chabad.org</strong>, traduction commentée de <em>Hilkhot Melakhim</em></td><td>texte du Rambam avec notes ; mention du passage supprimé par la censure chrétienne</td><td>éd. continue</td></tr><tr><td><strong>Ohr Somayach</strong>, « Words of Redemption »</td><td>distinction <em>geoula</em> / <em>pidyon</em> (Hatam Sofer, Malbim, Rabbi Stern)</td><td>2018</td></tr><tr><td><strong>Le Grand Continent</strong>, « Comment peut-on être chiite ? »</td><td>eschatologie duodécimaine, occultation de 874, rôle de l'Imam attendu</td><td>mars 2026</td></tr><tr><td><strong>Les Cahiers de l'Islam</strong>, « Déconstruction du messianisme en islam »</td><td>différence sunnite / chiite sur le Mahdi ; le Mahdi sunnite naît à la fin des temps, il n'est pas occulté</td><td>2018</td></tr><tr><td><strong>AFIS</strong>, « L'échec d'une prophétie : la démystification du récit »</td><td>synthèse de l'enquête de Thomas Kelly (2025) contestant <em>When Prophecy Fails</em></td><td>août 2026</td></tr><tr><td>Wikipedia (EN), *When Prophecy Fails*</td><td>les cinq conditions de Festinger, et les critiques de méthode (Van Fossen 1988)</td><td>éd. continue</td></tr></tbody></table></div>
+<h3>Écarté volontairement</h3>
+<ul><li><strong>Sites de calcul de dates</strong> (guématries, « prophéties » 2024-2026, comptes sur les réseaux) :</li></ul>
+<p>  aucune base textuelle vérifiable, et l'objet même est proscrit par les corpus qu'ils invoquent.</p>
+<ul><li><strong>Polémiques interreligieuses</strong> : les contenus visant à démontrer la fausseté de la croyance</li></ul>
+<p>  de l'autre ont été écartés — ils ne documentent pas le sujet, ils le prennent en otage.</p>
+<ul><li><strong>Vidéos et articles sensationnalistes</strong> sur le Mahdi ou le Messie : non retenus, aucun apport factuel.</li><li><strong>Sources non datées</strong> sur l'occultation : plusieurs articles donnent des dates différentes</li></ul>
+<p>  (873/874) ; la date de 874 est retenue ici comme la plus couramment admise.</p>
+<hr>
+</section>
+
+  <footer>
+    <b>Rien n'est publié sans sa date.</b> 1 note au répertoire.
+  </footer>
+</div>
+
+<div class="voile" id="voile" onclick="if(event.target===this)fermerNR()">
+  <div class="boite">
+    <h3>Nouvelle recherche</h3>
+    <p class="aide">Écrivez le thème et la question. <strong>La note est rédigée sur commande</strong> —
+    ce bouton prépare la demande et la garde sous la main.</p>
+
+    <label for="nrTheme">Thème</label>
+    <input id="nrTheme" type="text" placeholder="ex. la dette publique française">
+
+    <label for="nrQuestion">Question — fermée de préférence</label>
+    <textarea id="nrQuestion" placeholder="ex. combien la charge d'intérêts a-t-elle augmenté depuis 2020 ?"></textarea>
+    <p class="champs">Une question qui commence par <em>combien</em>, <em>est-ce que</em>, <em>pourquoi</em>
+    vaut mieux que « parle-moi de… ».</p>
+
+    <div class="pied-boite">
+      <button onclick="lancerNR()">Ouvrir Google News</button>
+      <button class="ok" onclick="garderNR()">Copier la commande</button>
+      <button onclick="fermerNR()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var IDS = ["accueil", "gueoula"];
+var actuelle = 'accueil';
+var registreJS = [{"id": "gueoula", "date": "2026-11-08", "titre": "La gueoula et la venue du Messie", "question": "Qu'est-ce que ce mot d\u00e9signe exactement, comment les traditions l'attendent-elles, et que peut-on dire de v\u00e9rifiable sur cette attente ?", "revision": "ao\u00fbt 2027", "apport": "Le mot veut dire r\u00e9demption, pas fin du monde — et les trois traditions interdisent chacune le calcul de la date."}];
+
+function ouvrir(q) {
+  actuelle = q;
+  for (var i = 0; i < IDS.length; i++) {
+    var p = document.getElementById('n-' + IDS[i]);
+    if (p) p.classList.toggle('vu', IDS[i] === q);
+  }
+  try { localStorage.setItem('vue', q); } catch (e) {}
+  window.scrollTo(0, 0);
+  if (location.hash !== '#' + q) { try { history.replaceState(null, '', '#' + q); } catch (e) {} }
+}
+
+window.addEventListener('scroll', function () {
+  var d = document.documentElement, max = d.scrollHeight - d.clientHeight;
+  document.getElementById('lecture').style.width = (max > 0 ? d.scrollTop / max * 100 : 0) + '%';
+});
+
+/* ---------- nouvelle recherche ---------- */
+function ouvrirNR() {
+  document.getElementById('voile').classList.add('on');
+  document.getElementById('nrTheme').focus();
+}
+function fermerNR() { document.getElementById('voile').classList.remove('on'); }
+
+function themeSaisi() {
+  var t = (document.getElementById('nrTheme').value || '').trim();
+  var q = (document.getElementById('nrQuestion').value || '').trim();
+  if (!t) { alert('Écrivez un thème.'); return null; }
+  return { theme: t, question: q || '[à compléter — une question fermée]' };
+}
+
+function commande(t, q) {
+  return 'THÈME : ' + t + '\n'
+       + 'QUESTION : ' + q + '\n'
+       + 'PÉRIMÈTRE : sources primaires et publications datées, français et anglais';
+}
+
+function copierTexte(txt, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () { avis(msg); },
+                                           function () { avis('Copie impossible — sélectionnez à la main'); });
+  } else { avis('Copie non disponible dans ce navigateur'); }
+}
+
+function avis(m) {
+  var d = document.createElement('div');
+  d.textContent = m;
+  d.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#5eead4;' +
+    'color:#ffffff;font:700 13.5px ui-sans-serif,system-ui;padding:11px 20px;border-radius:999px;z-index:400;' +
+    'box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  document.body.appendChild(d);
+  setTimeout(function () { d.remove(); }, 2400);
+}
+
+function lireAttente() {
+  try { var b = localStorage.getItem('attente'); var t = JSON.parse(b || '[]');
+         return Array.isArray(t) ? t : []; } catch (e) { return []; }
+}
+function ecrireAttente(t) { try { localStorage.setItem('attente', JSON.stringify(t)); } catch (e) {} }
+
+function garderNR() {
+  var s = themeSaisi(); if (!s) return;
+  var t = lireAttente();
+  t.unshift({ theme: s.theme, question: s.question, quand: new Date().toLocaleDateString('fr-FR') });
+  if (t.length > 12) t = t.slice(0, 12);
+  ecrireAttente(t); majCompteur();
+  copierTexte(commande(s.theme, s.question), 'Commande copiée — collez-la dans la conversation');
+  fermerNR();
+  document.getElementById('nrTheme').value = '';
+  document.getElementById('nrQuestion').value = '';
+}
+
+function lancerNR() {
+  var s = themeSaisi(); if (!s) return;
+  window.open('https://news.google.com/search?q=' + encodeURIComponent(s.theme + ' when:7d')
+              + '&hl=fr&gl=FR&ceid=FR:fr', '_blank');
+  avis('Recherche de presse ouverte');
+}
+
+function majCompteur() {
+  var e = document.getElementById('etat-attente');
+  if (!e) return;
+  var n = lireAttente().length;
+  e.innerHTML = n
+    ? '<b>' + n + '</b> demande' + (n > 1 ? 's' : '') + ' <b style="color:#b45309">en attente</b>'
+    : 'aucune demande en attente';
+}
+
+/* ---------- envoi par mail ---------- */
+var DEST = "franceinfo771@gmail.com";
+function envoyerMail() {
+  var n = null;
+  for (var i = 0; i < registreJS.length; i++) if (registreJS[i].id === actuelle) n = registreJS[i];
+  if (!n) n = registreJS[0];
+  var NL = String.fromCharCode(10);
+  var corps = "NOTE — " + n.titre + NL
+            + n.date + " · révision prévue : " + n.revision + NL + NL
+            + n.question + NL + NL
+            + n.apport + NL + NL
+            + "Lien : " + location.href.split(String.fromCharCode(35))[0] + "#" + n.id + NL + NL
+            + "— envoyé depuis le répertoire des notes.";
+  var url = "https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(DEST)
+          + "&su=" + encodeURIComponent("Note — " + n.titre)
+          + "&body=" + encodeURIComponent(corps);
+  window.open(url, "_blank");
+  avis("Gmail s'ouvre avec la note");
+}
+
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape') fermerNR();
+});
+majCompteur();
+
+(function () {
+  var h = (location.hash || '').replace('#', '');
+  var q = null;
+  if (h && IDS.indexOf(h) > -1) { q = h; }
+  else { try { var m = localStorage.getItem('vue'); if (m && IDS.indexOf(m) > -1) q = m; } catch (e) {} }
+  if (q && q !== 'accueil') ouvrir(q);
+})();
+</script>
+
+
+</body></html>
