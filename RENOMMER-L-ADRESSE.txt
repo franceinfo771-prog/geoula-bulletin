@@ -1,0 +1,69 @@
+RENOMMER L'ADRESSE DU SITE
+==========================
+Date : 14 novembre 2026
+
+AVANT  : https://franceinfo771-prog.github.io/geoula-bulletin/
+APRES  : https://franceinfo771-prog.github.io/tableau-de-bord/
+
+Ce que ça change : l'adresse ne dira plus rien du sujet.
+Ce que ça ne change PAS : votre travail, vos notes, vos fichiers. Rien n'est perdu.
+
+
+ETAPE PAR ETAPE
+---------------
+
+1. Ouvrez ce lien (connectez-vous si GitHub le demande) :
+
+   https://github.com/franceinfo771-prog/geoula-bulletin/settings
+
+2. Sur la page, tout en haut, il y a un cadre "Repository name"
+   avec le mot  geoula-bulletin  dedans.
+
+3. Effacez ce mot et tapez a la place :
+
+   tableau-de-bord
+
+4. Cliquez sur le bouton "Rename" a cote.
+
+5. GitHub demande de confirmer : tapez ou cliquez "I understand, rename".
+
+6. C'est fait. Rien d'autre a cocher.
+
+7. Patiencez 1 a 2 minutes, puis ouvrez la nouvelle adresse :
+
+   https://franceinfo771-prog.github.io/tableau-de-bord/
+
+   Elle affiche votre page.
+
+
+CE QUI SE PASSE ENSUITE
+-----------------------
+
+- L'ANCIENNE adresse ne marche plus. C'est voulu : elle disparait pour de bon.
+  (GitHub ne fait pas de renvoi pour les sites Pages.)
+
+- La page que vous voyez a la nouvelle adresse est l'ANCIENNE version du site.
+  Il reste a deposer le nouveau fichier index.html :
+
+  1. https://github.com/franceinfo771-prog/tableau-de-bord/upload/main
+  2. Glissez votre fichier index.html
+  3. Cliquez sur "Commit changes"
+  4. Attendez 2 minutes
+
+
+SI QUELQUE CHOSE CLOCH
+----------------------
+
+Vous pouvez tout defaire : revenez dans Settings, renommez a nouveau
+en geoula-bulletin. L'ancienne adresse revient.
+
+Pour me le dire, une seule phrase suffit :
+  "j'ai renomme"  ou  "le bouton n'existe pas"
+
+
+A FAIRE APRES
+-------------
+
+Dans le tableau de bord, le pave "Veille - notes sources" pointe encore
+vers l'ancienne adresse. Il faudra le mettre a jour : dites-le moi,
+je m'en occupe en une minute.
